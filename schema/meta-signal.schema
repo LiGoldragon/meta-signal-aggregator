@@ -1,0 +1,34 @@
+{}
+
+[
+  (Configure [ConfigurationChange])
+  (ObserveConfiguration [ObserveConfiguration])
+  (ValidateConfiguration [ConfigurationCandidate])
+]
+
+[
+  (ConfigurationConfigured [ConfigurationConfigured])
+  (ConfigurationObserved [ConfigurationObserved])
+  (ConfigurationValidated [ConfigurationValidated])
+  (ConfigurationRejected [ConfigurationRejected])
+]
+
+[]
+
+{
+  AggregatorConfiguration (FilesystemPath FilesystemPath FilesystemPath [ActiveRepository] [TranscriptSource] Projection LimitPolicy)
+  ConfigurationChange (AggregatorConfiguration)
+  ObserveConfiguration (?ConfigurationObserver)
+  ConfigurationCandidate (AggregatorConfiguration)
+  ActiveRepository (RepositoryName FilesystemPath)
+  TranscriptSource (SourceKind FilesystemPath TranscriptFormat)
+  TranscriptFormat [ClaudeJsonl CodexJsonl PiJsonl]
+  ConfigurationValidated (ConfigurationValidationOutcome)
+  ConfigurationValidationOutcome [Accepted Rejected]
+  ConfigurationRejected (OperationKind ConfigurationRejectionReason)
+}
+
+[
+  (Version 0 1)
+  (Status Scaffold)
+]
