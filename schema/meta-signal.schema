@@ -22,7 +22,7 @@
   ConfigurationCandidate (AggregatorConfiguration)
   ActiveRepository (RepositoryName FilesystemPath)
   TranscriptRoot (FilesystemPath)
-  TranscriptSource [Claude Codex Pi]
+  TranscriptSource [(Claude TranscriptRoot) (Codex TranscriptRoot) (Pi TranscriptRoot)]
   SocketMode (u32)
   ConfigurationValidated (ConfigurationValidationOutcome)
   ConfigurationValidationOutcome [Accepted Rejected]

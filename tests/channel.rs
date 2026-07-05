@@ -125,7 +125,9 @@ fn canonical_configuration() -> AggregatorConfiguration {
         meta_socket_mode: SocketMode::new(384),
         store_path: FilesystemPath::new("/var/lib/aggregator/aggregator.sema"),
         active_repositories: vec![],
-        transcript_sources: vec![],
+        transcript_sources: vec![TranscriptSource::Claude(TranscriptRoot {
+            path: FilesystemPath::new("/home/li/.claude/projects"),
+        })],
         default_projection: Projection::MetadataOnly,
         default_limit_policy: LimitPolicy {
             maximum_segments: SegmentLimit::new(32),
