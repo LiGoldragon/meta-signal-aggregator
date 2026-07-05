@@ -21,9 +21,8 @@
   ObserveConfiguration (?ConfigurationObserver)
   ConfigurationCandidate (AggregatorConfiguration)
   ActiveRepository (RepositoryName FilesystemPath)
-  TranscriptSource (TranscriptSourceKind FilesystemPath TranscriptFormat)
-  TranscriptSourceKind [Claude Codex Pi]
-  TranscriptFormat [ClaudeJsonl CodexJsonl PiJsonl]
+  TranscriptRoot (FilesystemPath)
+  TranscriptSource [Claude Codex Pi]
   SocketMode (u32)
   ConfigurationValidated (ConfigurationValidationOutcome)
   ConfigurationValidationOutcome [Accepted Rejected]

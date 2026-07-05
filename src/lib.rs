@@ -72,44 +72,6 @@ string_newtype!(ValidationIssueDetail);
 mode_newtype!(SocketMode, u32, into_u32);
 
 #[derive(
-    Archive,
-    RkyvSerialize,
-    RkyvDeserialize,
-    NotaEncode,
-    NotaDecode,
-    Debug,
-    Clone,
-    Copy,
-    PartialEq,
-    Eq,
-    Hash,
-)]
-pub enum TranscriptFormat {
-    ClaudeJsonl,
-    CodexJsonl,
-    PiJsonl,
-}
-
-#[derive(
-    Archive,
-    RkyvSerialize,
-    RkyvDeserialize,
-    NotaEncode,
-    NotaDecode,
-    Debug,
-    Clone,
-    Copy,
-    PartialEq,
-    Eq,
-    Hash,
-)]
-pub enum TranscriptSourceKind {
-    Claude,
-    Codex,
-    Pi,
-}
-
-#[derive(
     Archive, RkyvSerialize, RkyvDeserialize, NotaEncode, NotaDecode, Debug, Clone, PartialEq, Eq,
 )]
 pub struct ActiveRepository {
@@ -120,10 +82,17 @@ pub struct ActiveRepository {
 #[derive(
     Archive, RkyvSerialize, RkyvDeserialize, NotaEncode, NotaDecode, Debug, Clone, PartialEq, Eq,
 )]
-pub struct TranscriptSource {
-    pub source_kind: TranscriptSourceKind,
+pub struct TranscriptRoot {
     pub path: FilesystemPath,
-    pub format: TranscriptFormat,
+}
+
+#[derive(
+    Archive, RkyvSerialize, RkyvDeserialize, NotaEncode, NotaDecode, Debug, Clone, PartialEq, Eq,
+)]
+pub enum TranscriptSource {
+    Claude(TranscriptRoot),
+    Codex(TranscriptRoot),
+    Pi(TranscriptRoot),
 }
 
 #[derive(
