@@ -229,22 +229,64 @@ fn meta_operations_are_configuration_only() {
     );
 }
 
-#[test]
-fn schema_sketch_names_current_operation_and_reply_heads() {
-    let schema = include_str!("../schema/meta-signal.schema");
-    for expected in [
-        "(Configure [ConfigurationChange])",
-        "(ObserveConfiguration [ObserveConfiguration])",
-        "(ValidateConfiguration [ConfigurationCandidate])",
-        "(ConfigurationConfigured [ConfigurationConfigured])",
-        "(ConfigurationObserved [ConfigurationObserved])",
-        "(ConfigurationValidated [ConfigurationValidated])",
-        "(ConfigurationRejected [ConfigurationRejected])",
-        "(Status Scaffold)",
-    ] {
+const EXPECTED_SCHEMA_SKETCH: &str = "{}\n\n[\n  (Configure [ConfigurationChange])\n  (ObserveConfiguration [ObserveConfiguration])\n  (ValidateConfiguration [ConfigurationCandidate])\n]\n\n[\n  (ConfigurationConfigured [ConfigurationConfigured])\n  (ConfigurationObserved [ConfigurationObserved])\n  (ConfigurationValidated [ConfigurationValidated])\n  (ConfigurationRejected [ConfigurationRejected])\n]\n\n[]\n\n{\n  AggregatorConfiguration (FilesystemPath SocketMode FilesystemPath SocketMode FilesystemPath [ActiveRepository] [TranscriptSource] Projection LimitPolicy)\n  ConfigurationChange (AggregatorConfiguration)\n  ObserveConfiguration (?ConfigurationObserver)\n  ConfigurationCandidate (AggregatorConfiguration)\n  ActiveRepository (RepositoryName FilesystemPath)\n  TranscriptRoot (FilesystemPath)\n  TranscriptSource [(Claude TranscriptRoot) (Codex TranscriptRoot) (Pi TranscriptRoot)]\n  SocketMode (u32)\n  ConfigurationValidated (ConfigurationValidationOutcome)\n  ConfigurationValidationOutcome [Accepted Rejected]\n  ConfigurationRejected (OperationKind ConfigurationRejectionReason)\n}\n\n[\n  (Version 0 1)\n  (Status Scaffold)\n]\n";
+
+struct SchemaSketchWitness {
+    full_text: &'static str,
+    expected_operation_heads: &'static [&'static str],
+    expected_reply_heads: &'static [&'static str],
+    expected_data_heads: &'static [&'static str],
+}
+
+impl SchemaSketchWitness {
+    fn assert_matches_contract(self) {
+        assert_eq!(
+            self.full_text, EXPECTED_SCHEMA_SKETCH,
+            "schema sketch drifted; update the complete manual witness with any intentional schema change"
+        );
+        assert_eq!(
+            <MetaAggregatorRequest as SignalOperationHeads>::HEADS,
+            self.expected_operation_heads,
+            "exported operation heads drifted from the schema sketch"
+        );
+        for head in self.expected_reply_heads {
+            assert!(
+                self.full_text.contains(&format!("  ({head} [")),
+                "schema sketch is missing reply head {head}"
+            );
+        }
+        for head in self.expected_data_heads {
+            assert!(
+                self.full_text.contains(&format!("  {head} ")),
+                "schema sketch is missing configuration head {head}"
+            );
+        }
         assert!(
-            schema.contains(expected),
-            "schema sketch is missing expected contract surface {expected}"
+            self.full_text.ends_with("  (Status Scaffold)\n]\n"),
+            "schema sketch scaffold status drifted"
         );
     }
+}
+
+#[test]
+fn schema_sketch_matches_complete_manual_contract_witness() {
+    SchemaSketchWitness {
+        full_text: include_str!("../schema/meta-signal.schema"),
+        expected_operation_heads: &["Configure", "ObserveConfiguration", "ValidateConfiguration"],
+        expected_reply_heads: &[
+            "ConfigurationConfigured",
+            "ConfigurationObserved",
+            "ConfigurationValidated",
+            "ConfigurationRejected",
+        ],
+        expected_data_heads: &[
+            "AggregatorConfiguration",
+            "ConfigurationChange",
+            "ObserveConfiguration",
+            "ConfigurationCandidate",
+            "ConfigurationValidated",
+            "ConfigurationRejected",
+        ],
+    }
+    .assert_matches_contract();
 }
