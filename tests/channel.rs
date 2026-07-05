@@ -228,3 +228,23 @@ fn meta_operations_are_configuration_only() {
         MetaAggregatorOperationKind::Configure
     );
 }
+
+#[test]
+fn schema_sketch_names_current_operation_and_reply_heads() {
+    let schema = include_str!("../schema/meta-signal.schema");
+    for expected in [
+        "(Configure [ConfigurationChange])",
+        "(ObserveConfiguration [ObserveConfiguration])",
+        "(ValidateConfiguration [ConfigurationCandidate])",
+        "(ConfigurationConfigured [ConfigurationConfigured])",
+        "(ConfigurationObserved [ConfigurationObserved])",
+        "(ConfigurationValidated [ConfigurationValidated])",
+        "(ConfigurationRejected [ConfigurationRejected])",
+        "(Status Scaffold)",
+    ] {
+        assert!(
+            schema.contains(expected),
+            "schema sketch is missing expected contract surface {expected}"
+        );
+    }
+}
