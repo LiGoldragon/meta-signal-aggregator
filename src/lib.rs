@@ -5,7 +5,7 @@
 
 use nota::{NotaDecode, NotaEncode};
 use rkyv::{Archive, Deserialize as RkyvDeserialize, Serialize as RkyvSerialize};
-pub use signal_aggregator::{LimitPolicy, Projection, SourceKind};
+pub use signal_aggregator::{LimitPolicy, Projection};
 use signal_frame::signal_channel;
 
 macro_rules! string_newtype {
@@ -91,6 +91,25 @@ pub enum TranscriptFormat {
 }
 
 #[derive(
+    Archive,
+    RkyvSerialize,
+    RkyvDeserialize,
+    NotaEncode,
+    NotaDecode,
+    Debug,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    Hash,
+)]
+pub enum TranscriptSourceKind {
+    Claude,
+    Codex,
+    Pi,
+}
+
+#[derive(
     Archive, RkyvSerialize, RkyvDeserialize, NotaEncode, NotaDecode, Debug, Clone, PartialEq, Eq,
 )]
 pub struct ActiveRepository {
@@ -102,7 +121,7 @@ pub struct ActiveRepository {
     Archive, RkyvSerialize, RkyvDeserialize, NotaEncode, NotaDecode, Debug, Clone, PartialEq, Eq,
 )]
 pub struct TranscriptSource {
-    pub source_kind: SourceKind,
+    pub source_kind: TranscriptSourceKind,
     pub path: FilesystemPath,
     pub format: TranscriptFormat,
 }

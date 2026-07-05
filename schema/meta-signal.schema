@@ -16,13 +16,15 @@
 []
 
 {
-  AggregatorConfiguration (FilesystemPath FilesystemPath FilesystemPath [ActiveRepository] [TranscriptSource] Projection LimitPolicy)
+  AggregatorConfiguration (FilesystemPath SocketMode FilesystemPath SocketMode FilesystemPath [ActiveRepository] [TranscriptSource] Projection LimitPolicy)
   ConfigurationChange (AggregatorConfiguration)
   ObserveConfiguration (?ConfigurationObserver)
   ConfigurationCandidate (AggregatorConfiguration)
   ActiveRepository (RepositoryName FilesystemPath)
-  TranscriptSource (SourceKind FilesystemPath TranscriptFormat)
+  TranscriptSource (TranscriptSourceKind FilesystemPath TranscriptFormat)
+  TranscriptSourceKind [Claude Codex Pi]
   TranscriptFormat [ClaudeJsonl CodexJsonl PiJsonl]
+  SocketMode (u32)
   ConfigurationValidated (ConfigurationValidationOutcome)
   ConfigurationValidationOutcome [Accepted Rejected]
   ConfigurationRejected (OperationKind ConfigurationRejectionReason)

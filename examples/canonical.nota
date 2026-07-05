@@ -1,5 +1,5 @@
-(Configure (((/run/aggregator/aggregator.sock /run/aggregator/aggregator-meta.sock /var/lib/aggregator/aggregator.sema ([]) ([]) MetadataOnly (32 4096)))))
-(ObserveConfiguration ((None)))
-(ValidateConfiguration ((/run/aggregator/aggregator.sock /run/aggregator/aggregator-meta.sock /var/lib/aggregator/aggregator.sema ([]) ([]) MetadataOnly (32 4096))))
+(Configure ((/run/aggregator/aggregator.sock 432 /run/aggregator/aggregator-meta.sock 384 /var/lib/aggregator/aggregator.sema [] [] MetadataOnly (32 4096))))
+(ObserveConfiguration (None))
+(ValidateConfiguration ((/run/aggregator/aggregator.sock 432 /run/aggregator/aggregator-meta.sock 384 /var/lib/aggregator/aggregator.sema [] [] MetadataOnly (32 4096))))
 (ConfigurationValidated (Accepted))
 (ConfigurationRejected (Configure InvalidConfiguration))
