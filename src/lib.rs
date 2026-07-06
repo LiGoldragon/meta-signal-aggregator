@@ -5,7 +5,7 @@
 
 use nota::{NotaDecode, NotaEncode};
 use rkyv::{Archive, Deserialize as RkyvDeserialize, Serialize as RkyvSerialize};
-pub use signal_aggregator::{LimitPolicy, Projection};
+pub use signal_aggregator::{ByteLimit, ItemCount, LimitPolicy, PageLimit, Projection};
 use signal_frame::signal_channel;
 
 macro_rules! string_newtype {
@@ -95,6 +95,169 @@ pub enum TranscriptSource {
     Pi(TranscriptRoot),
 }
 
+/// Fine-controlled output interfaces use a durable daemon-local index whose
+/// references remain fragile because backing transcript and artifact files can
+/// move, change, or disappear.
+#[derive(
+    Archive,
+    RkyvSerialize,
+    RkyvDeserialize,
+    NotaEncode,
+    NotaDecode,
+    Debug,
+    Default,
+    Clone,
+    PartialEq,
+    Eq,
+)]
+pub struct OutputInterfaceConfiguration {
+    pub fragile_index: DurableFragileIndexPolicy,
+    pub limits: OutputInterfaceLimitPolicy,
+    pub legacy_recovery_sources: Vec<LegacyRecoverySource>,
+}
+
+/// Policy for the aggregator-owned opaque index. The policy is durable, but
+/// the references it produces are explicitly stale-capable.
+#[derive(
+    Archive,
+    RkyvSerialize,
+    RkyvDeserialize,
+    NotaEncode,
+    NotaDecode,
+    Debug,
+    Default,
+    Clone,
+    PartialEq,
+    Eq,
+)]
+pub struct DurableFragileIndexPolicy {
+    pub storage: DurableFragileIndexStorage,
+    pub references: FragileReferencePolicy,
+    pub ordering_tie_breaker: StableOrderingTieBreaker,
+}
+
+#[derive(
+    Archive,
+    RkyvSerialize,
+    RkyvDeserialize,
+    NotaEncode,
+    NotaDecode,
+    Debug,
+    Default,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    Hash,
+)]
+pub enum DurableFragileIndexStorage {
+    #[default]
+    /// Persist the index in the daemon-local store named by
+    /// [`AggregatorConfiguration::store_path`], never in repositories or legacy
+    /// recovery roots.
+    DaemonLocalStorePath,
+}
+
+#[derive(
+    Archive,
+    RkyvSerialize,
+    RkyvDeserialize,
+    NotaEncode,
+    NotaDecode,
+    Debug,
+    Default,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    Hash,
+)]
+pub enum FragileReferencePolicy {
+    #[default]
+    /// References are daemon-local opaque handles. Runtime readers must reject
+    /// stale or broken references instead of promising stable file identity.
+    OpaqueStaleCapable,
+}
+
+#[derive(
+    Archive,
+    RkyvSerialize,
+    RkyvDeserialize,
+    NotaEncode,
+    NotaDecode,
+    Debug,
+    Default,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    Hash,
+)]
+pub enum StableOrderingTieBreaker {
+    #[default]
+    /// After the requested listing order, break ties by opaque fragile
+    /// reference so pagination stays deterministic for an unchanged index.
+    FragileReferenceAscending,
+}
+
+/// Runtime ceilings for output listing, preview, read, and legacy recovery
+/// source discovery. Exact read ranges are still enforced by the runtime.
+#[derive(
+    Archive, RkyvSerialize, RkyvDeserialize, NotaEncode, NotaDecode, Debug, Clone, PartialEq, Eq,
+)]
+pub struct OutputInterfaceLimitPolicy {
+    pub maximum_page_items: PageLimit,
+    pub maximum_preview_bytes: ByteLimit,
+    pub maximum_read_bytes: ByteLimit,
+    pub maximum_recovery_files_per_root: ItemCount,
+}
+
+impl Default for OutputInterfaceLimitPolicy {
+    fn default() -> Self {
+        Self {
+            maximum_page_items: PageLimit::new(64),
+            maximum_preview_bytes: ByteLimit::new(4096),
+            maximum_read_bytes: ByteLimit::new(65_536),
+            maximum_recovery_files_per_root: ItemCount::new(1024),
+        }
+    }
+}
+
+#[derive(
+    Archive, RkyvSerialize, RkyvDeserialize, NotaEncode, NotaDecode, Debug, Clone, PartialEq, Eq,
+)]
+pub enum LegacyRecoverySource {
+    LegacyReports(LegacyRecoveryRoot),
+    LegacyAgentOutputs(LegacyRecoveryRoot),
+}
+
+/// Optional legacy source root. These roots are read-only recovery inputs and
+/// are not source-of-truth design surfaces.
+#[derive(
+    Archive, RkyvSerialize, RkyvDeserialize, NotaEncode, NotaDecode, Debug, Clone, PartialEq, Eq,
+)]
+pub struct LegacyRecoveryRoot {
+    pub path: FilesystemPath,
+    pub access: LegacyRecoveryAccess,
+}
+
+#[derive(
+    Archive,
+    RkyvSerialize,
+    RkyvDeserialize,
+    NotaEncode,
+    NotaDecode,
+    Debug,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    Hash,
+)]
+pub enum LegacyRecoveryAccess {
+    ReadOnlyRecovery,
+}
+
 #[derive(
     Archive, RkyvSerialize, RkyvDeserialize, NotaEncode, NotaDecode, Debug, Clone, PartialEq, Eq,
 )]
@@ -108,6 +271,7 @@ pub struct AggregatorConfiguration {
     pub transcript_sources: Vec<TranscriptSource>,
     pub default_projection: Projection,
     pub default_limit_policy: LimitPolicy,
+    pub output_interfaces: OutputInterfaceConfiguration,
 }
 
 #[derive(
@@ -138,10 +302,13 @@ pub struct ConfigurationConfigured {
     pub configuration: AggregatorConfiguration,
 }
 
+#[allow(clippy::large_enum_variant)]
 #[derive(
     Archive, RkyvSerialize, RkyvDeserialize, NotaEncode, NotaDecode, Debug, Clone, PartialEq, Eq,
 )]
 pub enum ConfigurationObservation {
+    /// The meta observation reply intentionally carries the full configuration
+    /// inline so its NOTA and rkyv shape matches the configured value.
     Configured(AggregatorConfiguration),
     NotConfigured,
 }
@@ -171,6 +338,11 @@ pub enum ConfigurationValidationIssueKind {
     MissingRepository,
     UnreadablePath,
     InvalidSocketMode,
+    MissingFragileIndexConfiguration,
+    InvalidFragileIndexConfiguration,
+    UnwritableFragileIndexStorage,
+    InvalidOutputInterfaceLimit,
+    InvalidLegacyRecoveryRoot,
 }
 
 #[derive(

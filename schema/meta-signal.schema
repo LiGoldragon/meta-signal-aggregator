@@ -16,20 +16,32 @@
 []
 
 {
-  AggregatorConfiguration (FilesystemPath SocketMode FilesystemPath SocketMode FilesystemPath [ActiveRepository] [TranscriptSource] Projection LimitPolicy)
+  AggregatorConfiguration (FilesystemPath SocketMode FilesystemPath SocketMode FilesystemPath [ActiveRepository] [TranscriptSource] Projection LimitPolicy OutputInterfaceConfiguration)
   ConfigurationChange (AggregatorConfiguration)
   ObserveConfiguration (?ConfigurationObserver)
   ConfigurationCandidate (AggregatorConfiguration)
   ActiveRepository (RepositoryName FilesystemPath)
   TranscriptRoot (FilesystemPath)
   TranscriptSource [(Claude TranscriptRoot) (Codex TranscriptRoot) (Pi TranscriptRoot)]
+  OutputInterfaceConfiguration (DurableFragileIndexPolicy OutputInterfaceLimitPolicy [LegacyRecoverySource])
+  DurableFragileIndexPolicy (DurableFragileIndexStorage FragileReferencePolicy StableOrderingTieBreaker)
+  DurableFragileIndexStorage [DaemonLocalStorePath]
+  FragileReferencePolicy [OpaqueStaleCapable]
+  StableOrderingTieBreaker [FragileReferenceAscending]
+  OutputInterfaceLimitPolicy (PageLimit ByteLimit ByteLimit ItemCount)
+  LegacyRecoverySource [(LegacyReports LegacyRecoveryRoot) (LegacyAgentOutputs LegacyRecoveryRoot)]
+  LegacyRecoveryRoot (FilesystemPath LegacyRecoveryAccess)
+  LegacyRecoveryAccess [ReadOnlyRecovery]
   SocketMode (u32)
   ConfigurationValidated (ConfigurationValidationOutcome)
-  ConfigurationValidationOutcome [Accepted Rejected]
+  ConfigurationValidationOutcome [Accepted (Rejected ConfigurationValidationReport)]
+  ConfigurationValidationReport ([ConfigurationValidationIssue])
+  ConfigurationValidationIssue (?FilesystemPath ConfigurationValidationIssueKind ?ValidationIssueDetail)
+  ConfigurationValidationIssueKind [MissingTranscriptSource MissingRepository UnreadablePath InvalidSocketMode MissingFragileIndexConfiguration InvalidFragileIndexConfiguration UnwritableFragileIndexStorage InvalidOutputInterfaceLimit InvalidLegacyRecoveryRoot]
   ConfigurationRejected (OperationKind ConfigurationRejectionReason)
 }
 
 [
-  (Version 0 1)
+  (Version 0 2)
   (Status Scaffold)
 ]

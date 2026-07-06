@@ -102,7 +102,7 @@ dependencies = [
 
 [[package]]
 name = "meta-signal-aggregator"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "nota 0.5.1 (git+https://github.com/LiGoldragon/nota-next.git?branch=main)",
  "rkyv",
@@ -281,8 +281,8 @@ checksum = "b39cdef0fa800fc44525c84ccb54a029961a8215f9619753635a9c0d2538d46d"
 
 [[package]]
 name = "signal-aggregator"
-version = "0.1.0"
-source = "git+https://github.com/LiGoldragon/signal-aggregator?branch=main#7bbcdc719c8ebb124f5ba45b5b7f103a30d68c5a"
+version = "0.2.0"
+source = "git+https://github.com/LiGoldragon/signal-aggregator?branch=main#49506971b34d99d5aa82498daa10075d97ad9b17"
 dependencies = [
  "nota 0.5.1 (git+https://github.com/LiGoldragon/nota-next.git?branch=main)",
  "rkyv",

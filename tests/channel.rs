@@ -1,12 +1,17 @@
 use meta_signal_aggregator::{
-    ActiveRepository, AggregatorConfiguration, ConfigurationCandidate, ConfigurationChange,
-    ConfigurationRejected, ConfigurationRejectionReason, ConfigurationValidated,
-    ConfigurationValidationOutcome, FilesystemPath, MetaAggregatorFrame, MetaAggregatorFrameBody,
-    MetaAggregatorOperationKind, MetaAggregatorReply, MetaAggregatorRequest, ObserveConfiguration,
-    RepositoryName, SocketMode, TranscriptRoot, TranscriptSource,
+    ActiveRepository, AggregatorConfiguration, ByteLimit, ConfigurationCandidate,
+    ConfigurationChange, ConfigurationRejected, ConfigurationRejectionReason,
+    ConfigurationValidated, ConfigurationValidationIssue, ConfigurationValidationIssueKind,
+    ConfigurationValidationOutcome, ConfigurationValidationReport, DurableFragileIndexPolicy,
+    DurableFragileIndexStorage, FilesystemPath, FragileReferencePolicy, ItemCount,
+    LegacyRecoveryAccess, LegacyRecoveryRoot, LegacyRecoverySource, MetaAggregatorFrame,
+    MetaAggregatorFrameBody, MetaAggregatorOperationKind, MetaAggregatorReply,
+    MetaAggregatorRequest, ObserveConfiguration, OutputInterfaceConfiguration,
+    OutputInterfaceLimitPolicy, PageLimit, RepositoryName, SocketMode, StableOrderingTieBreaker,
+    TranscriptRoot, TranscriptSource, ValidationIssueDetail,
 };
 use nota::{NotaDecode, NotaEncode, NotaSource};
-use signal_aggregator::{ByteLimit, LimitPolicy, Projection, SegmentLimit};
+use signal_aggregator::{LimitPolicy, Projection, SegmentLimit};
 use signal_frame::{
     ExchangeIdentifier, ExchangeLane, LaneSequence, NonEmpty, Reply, RequestPayload, SessionEpoch,
     SignalOperationHeads, SubReply,
@@ -31,6 +36,7 @@ fn configuration() -> AggregatorConfiguration {
             maximum_segments: SegmentLimit::new(32),
             maximum_bytes: ByteLimit::new(4096),
         },
+        output_interfaces: OutputInterfaceConfiguration::default(),
     }
 }
 
@@ -133,7 +139,85 @@ fn canonical_configuration() -> AggregatorConfiguration {
             maximum_segments: SegmentLimit::new(32),
             maximum_bytes: ByteLimit::new(4096),
         },
+        output_interfaces: OutputInterfaceConfiguration::default(),
     }
+}
+
+#[test]
+fn output_interface_defaults_keep_index_daemon_local_and_legacy_roots_disabled() {
+    let output_interfaces = OutputInterfaceConfiguration::default();
+    assert_eq!(
+        output_interfaces.fragile_index,
+        DurableFragileIndexPolicy {
+            storage: DurableFragileIndexStorage::DaemonLocalStorePath,
+            references: FragileReferencePolicy::OpaqueStaleCapable,
+            ordering_tie_breaker: StableOrderingTieBreaker::FragileReferenceAscending,
+        }
+    );
+    assert_eq!(
+        output_interfaces.limits,
+        OutputInterfaceLimitPolicy {
+            maximum_page_items: PageLimit::new(64),
+            maximum_preview_bytes: ByteLimit::new(4096),
+            maximum_read_bytes: ByteLimit::new(65_536),
+            maximum_recovery_files_per_root: ItemCount::new(1024),
+        }
+    );
+    assert!(
+        output_interfaces.legacy_recovery_sources.is_empty(),
+        "legacy reports and agent outputs are opt-in recovery roots"
+    );
+}
+
+#[test]
+fn legacy_recovery_roots_round_trip_as_read_only_sources() {
+    let output_interfaces = OutputInterfaceConfiguration {
+        legacy_recovery_sources: vec![
+            LegacyRecoverySource::LegacyReports(LegacyRecoveryRoot {
+                path: FilesystemPath::new("/home/li/primary/reports"),
+                access: LegacyRecoveryAccess::ReadOnlyRecovery,
+            }),
+            LegacyRecoverySource::LegacyAgentOutputs(LegacyRecoveryRoot {
+                path: FilesystemPath::new("/home/li/primary/agent-outputs"),
+                access: LegacyRecoveryAccess::ReadOnlyRecovery,
+            }),
+        ],
+        ..OutputInterfaceConfiguration::default()
+    };
+    round_trip_nota(output_interfaces);
+}
+
+#[test]
+fn output_interface_validation_rejections_round_trip_through_nota() {
+    round_trip_nota(MetaAggregatorReply::ConfigurationValidated(
+        ConfigurationValidated {
+            outcome: ConfigurationValidationOutcome::Rejected(ConfigurationValidationReport {
+                issues: vec![
+                    ConfigurationValidationIssue {
+                        path: None,
+                        kind: ConfigurationValidationIssueKind::InvalidFragileIndexConfiguration,
+                        detail: Some(ValidationIssueDetail::new(
+                            "fragile index policy must be daemon-local durable storage",
+                        )),
+                    },
+                    ConfigurationValidationIssue {
+                        path: Some(FilesystemPath::new("/var/lib/aggregator/aggregator.sema")),
+                        kind: ConfigurationValidationIssueKind::UnwritableFragileIndexStorage,
+                        detail: Some(ValidationIssueDetail::new(
+                            "durable fragile index store must be writable",
+                        )),
+                    },
+                    ConfigurationValidationIssue {
+                        path: Some(FilesystemPath::new("/home/li/primary/reports")),
+                        kind: ConfigurationValidationIssueKind::InvalidLegacyRecoveryRoot,
+                        detail: Some(ValidationIssueDetail::new(
+                            "legacy roots are read-only recovery inputs",
+                        )),
+                    },
+                ],
+            }),
+        },
+    ));
 }
 
 #[test]
@@ -229,7 +313,7 @@ fn meta_operations_are_configuration_only() {
     );
 }
 
-const EXPECTED_SCHEMA_SKETCH: &str = "{}\n\n[\n  (Configure [ConfigurationChange])\n  (ObserveConfiguration [ObserveConfiguration])\n  (ValidateConfiguration [ConfigurationCandidate])\n]\n\n[\n  (ConfigurationConfigured [ConfigurationConfigured])\n  (ConfigurationObserved [ConfigurationObserved])\n  (ConfigurationValidated [ConfigurationValidated])\n  (ConfigurationRejected [ConfigurationRejected])\n]\n\n[]\n\n{\n  AggregatorConfiguration (FilesystemPath SocketMode FilesystemPath SocketMode FilesystemPath [ActiveRepository] [TranscriptSource] Projection LimitPolicy)\n  ConfigurationChange (AggregatorConfiguration)\n  ObserveConfiguration (?ConfigurationObserver)\n  ConfigurationCandidate (AggregatorConfiguration)\n  ActiveRepository (RepositoryName FilesystemPath)\n  TranscriptRoot (FilesystemPath)\n  TranscriptSource [(Claude TranscriptRoot) (Codex TranscriptRoot) (Pi TranscriptRoot)]\n  SocketMode (u32)\n  ConfigurationValidated (ConfigurationValidationOutcome)\n  ConfigurationValidationOutcome [Accepted Rejected]\n  ConfigurationRejected (OperationKind ConfigurationRejectionReason)\n}\n\n[\n  (Version 0 1)\n  (Status Scaffold)\n]\n";
+const EXPECTED_SCHEMA_SKETCH: &str = "{}\n\n[\n  (Configure [ConfigurationChange])\n  (ObserveConfiguration [ObserveConfiguration])\n  (ValidateConfiguration [ConfigurationCandidate])\n]\n\n[\n  (ConfigurationConfigured [ConfigurationConfigured])\n  (ConfigurationObserved [ConfigurationObserved])\n  (ConfigurationValidated [ConfigurationValidated])\n  (ConfigurationRejected [ConfigurationRejected])\n]\n\n[]\n\n{\n  AggregatorConfiguration (FilesystemPath SocketMode FilesystemPath SocketMode FilesystemPath [ActiveRepository] [TranscriptSource] Projection LimitPolicy OutputInterfaceConfiguration)\n  ConfigurationChange (AggregatorConfiguration)\n  ObserveConfiguration (?ConfigurationObserver)\n  ConfigurationCandidate (AggregatorConfiguration)\n  ActiveRepository (RepositoryName FilesystemPath)\n  TranscriptRoot (FilesystemPath)\n  TranscriptSource [(Claude TranscriptRoot) (Codex TranscriptRoot) (Pi TranscriptRoot)]\n  OutputInterfaceConfiguration (DurableFragileIndexPolicy OutputInterfaceLimitPolicy [LegacyRecoverySource])\n  DurableFragileIndexPolicy (DurableFragileIndexStorage FragileReferencePolicy StableOrderingTieBreaker)\n  DurableFragileIndexStorage [DaemonLocalStorePath]\n  FragileReferencePolicy [OpaqueStaleCapable]\n  StableOrderingTieBreaker [FragileReferenceAscending]\n  OutputInterfaceLimitPolicy (PageLimit ByteLimit ByteLimit ItemCount)\n  LegacyRecoverySource [(LegacyReports LegacyRecoveryRoot) (LegacyAgentOutputs LegacyRecoveryRoot)]\n  LegacyRecoveryRoot (FilesystemPath LegacyRecoveryAccess)\n  LegacyRecoveryAccess [ReadOnlyRecovery]\n  SocketMode (u32)\n  ConfigurationValidated (ConfigurationValidationOutcome)\n  ConfigurationValidationOutcome [Accepted (Rejected ConfigurationValidationReport)]\n  ConfigurationValidationReport ([ConfigurationValidationIssue])\n  ConfigurationValidationIssue (?FilesystemPath ConfigurationValidationIssueKind ?ValidationIssueDetail)\n  ConfigurationValidationIssueKind [MissingTranscriptSource MissingRepository UnreadablePath InvalidSocketMode MissingFragileIndexConfiguration InvalidFragileIndexConfiguration UnwritableFragileIndexStorage InvalidOutputInterfaceLimit InvalidLegacyRecoveryRoot]\n  ConfigurationRejected (OperationKind ConfigurationRejectionReason)\n}\n\n[\n  (Version 0 2)\n  (Status Scaffold)\n]\n";
 
 struct SchemaSketchWitness {
     full_text: &'static str,
@@ -285,7 +369,20 @@ fn schema_sketch_matches_complete_manual_contract_witness() {
             "ObserveConfiguration",
             "ConfigurationCandidate",
             "ConfigurationValidated",
+            "ConfigurationValidationOutcome",
+            "ConfigurationValidationReport",
+            "ConfigurationValidationIssue",
+            "ConfigurationValidationIssueKind",
             "ConfigurationRejected",
+            "OutputInterfaceConfiguration",
+            "DurableFragileIndexPolicy",
+            "DurableFragileIndexStorage",
+            "FragileReferencePolicy",
+            "StableOrderingTieBreaker",
+            "OutputInterfaceLimitPolicy",
+            "LegacyRecoverySource",
+            "LegacyRecoveryRoot",
+            "LegacyRecoveryAccess",
         ],
     }
     .assert_matches_contract();

@@ -1,5 +1,5 @@
-(Configure ((/run/aggregator/aggregator.sock 432 /run/aggregator/aggregator-meta.sock 384 /var/lib/aggregator/aggregator.sema [] [(Claude (/home/li/.claude/projects))] MetadataOnly (32 4096))))
+(Configure ((/run/aggregator/aggregator.sock 432 /run/aggregator/aggregator-meta.sock 384 /var/lib/aggregator/aggregator.sema [] [(Claude (/home/li/.claude/projects))] MetadataOnly (32 4096) ((DaemonLocalStorePath OpaqueStaleCapable FragileReferenceAscending) (64 4096 65536 1024) []))))
 (ObserveConfiguration (None))
-(ValidateConfiguration ((/run/aggregator/aggregator.sock 432 /run/aggregator/aggregator-meta.sock 384 /var/lib/aggregator/aggregator.sema [] [(Claude (/home/li/.claude/projects))] MetadataOnly (32 4096))))
+(ValidateConfiguration ((/run/aggregator/aggregator.sock 432 /run/aggregator/aggregator-meta.sock 384 /var/lib/aggregator/aggregator.sema [] [(Claude (/home/li/.claude/projects))] MetadataOnly (32 4096) ((DaemonLocalStorePath OpaqueStaleCapable FragileReferenceAscending) (64 4096 65536 1024) []))))
 (ConfigurationValidated (Accepted))
 (ConfigurationRejected (Configure InvalidConfiguration))
