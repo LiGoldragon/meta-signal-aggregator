@@ -18,7 +18,9 @@ The contract exposes three operations:
 Replies distinguish configured, observed, validated, and rejected outcomes.
 The output-interface slice names the durable index as daemon-local state under
 the configured store path while preserving that produced references are opaque,
-fragile, and stale-capable. Optional legacy report and agent-output roots are
+fragile, and stale-capable. `ClaudeSubagentOutput` configures `.output` JSONL
+roots explicitly; task notification paths are link evidence, not authority to
+read arbitrary files. Optional legacy report and agent-output roots are
 tagged as read-only recovery inputs, not primary design surfaces.
 
 ## Boundary
