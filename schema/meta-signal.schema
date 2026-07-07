@@ -22,7 +22,7 @@
   ConfigurationCandidate (AggregatorConfiguration)
   ActiveRepository (RepositoryName FilesystemPath)
   TranscriptRoot (FilesystemPath)
-  TranscriptSource [(Claude TranscriptRoot) (Codex TranscriptRoot) (Pi TranscriptRoot)]
+  TranscriptSource [(Claude TranscriptRoot) (ClaudeSubagentOutput TranscriptRoot) (Codex TranscriptRoot) (Pi TranscriptRoot)]
   OutputInterfaceConfiguration (DurableFragileIndexPolicy OutputInterfaceLimitPolicy [LegacyRecoverySource])
   DurableFragileIndexPolicy (DurableFragileIndexStorage FragileReferencePolicy StableOrderingTieBreaker)
   DurableFragileIndexStorage [DaemonLocalStorePath]

@@ -313,7 +313,54 @@ fn meta_operations_are_configuration_only() {
     );
 }
 
-const EXPECTED_SCHEMA_SKETCH: &str = "{}\n\n[\n  (Configure [ConfigurationChange])\n  (ObserveConfiguration [ObserveConfiguration])\n  (ValidateConfiguration [ConfigurationCandidate])\n]\n\n[\n  (ConfigurationConfigured [ConfigurationConfigured])\n  (ConfigurationObserved [ConfigurationObserved])\n  (ConfigurationValidated [ConfigurationValidated])\n  (ConfigurationRejected [ConfigurationRejected])\n]\n\n[]\n\n{\n  AggregatorConfiguration (FilesystemPath SocketMode FilesystemPath SocketMode FilesystemPath [ActiveRepository] [TranscriptSource] Projection LimitPolicy OutputInterfaceConfiguration)\n  ConfigurationChange (AggregatorConfiguration)\n  ObserveConfiguration (?ConfigurationObserver)\n  ConfigurationCandidate (AggregatorConfiguration)\n  ActiveRepository (RepositoryName FilesystemPath)\n  TranscriptRoot (FilesystemPath)\n  TranscriptSource [(Claude TranscriptRoot) (Codex TranscriptRoot) (Pi TranscriptRoot)]\n  OutputInterfaceConfiguration (DurableFragileIndexPolicy OutputInterfaceLimitPolicy [LegacyRecoverySource])\n  DurableFragileIndexPolicy (DurableFragileIndexStorage FragileReferencePolicy StableOrderingTieBreaker)\n  DurableFragileIndexStorage [DaemonLocalStorePath]\n  FragileReferencePolicy [OpaqueStaleCapable]\n  StableOrderingTieBreaker [FragileReferenceAscending]\n  OutputInterfaceLimitPolicy (PageLimit ByteLimit ByteLimit ItemCount)\n  LegacyRecoverySource [(LegacyReports LegacyRecoveryRoot) (LegacyAgentOutputs LegacyRecoveryRoot)]\n  LegacyRecoveryRoot (FilesystemPath LegacyRecoveryAccess)\n  LegacyRecoveryAccess [ReadOnlyRecovery]\n  SocketMode (u32)\n  ConfigurationValidated (ConfigurationValidationOutcome)\n  ConfigurationValidationOutcome [Accepted (Rejected ConfigurationValidationReport)]\n  ConfigurationValidationReport ([ConfigurationValidationIssue])\n  ConfigurationValidationIssue (?FilesystemPath ConfigurationValidationIssueKind ?ValidationIssueDetail)\n  ConfigurationValidationIssueKind [MissingTranscriptSource MissingRepository UnreadablePath InvalidSocketMode MissingFragileIndexConfiguration InvalidFragileIndexConfiguration UnwritableFragileIndexStorage InvalidOutputInterfaceLimit InvalidLegacyRecoveryRoot]\n  ConfigurationRejected (OperationKind ConfigurationRejectionReason)\n}\n\n[\n  (Version 0 2)\n  (Status Scaffold)\n]\n";
+const EXPECTED_SCHEMA_SKETCH: &str = r#"{}
+
+[
+  (Configure [ConfigurationChange])
+  (ObserveConfiguration [ObserveConfiguration])
+  (ValidateConfiguration [ConfigurationCandidate])
+]
+
+[
+  (ConfigurationConfigured [ConfigurationConfigured])
+  (ConfigurationObserved [ConfigurationObserved])
+  (ConfigurationValidated [ConfigurationValidated])
+  (ConfigurationRejected [ConfigurationRejected])
+]
+
+[]
+
+{
+  AggregatorConfiguration (FilesystemPath SocketMode FilesystemPath SocketMode FilesystemPath [ActiveRepository] [TranscriptSource] Projection LimitPolicy OutputInterfaceConfiguration)
+  ConfigurationChange (AggregatorConfiguration)
+  ObserveConfiguration (?ConfigurationObserver)
+  ConfigurationCandidate (AggregatorConfiguration)
+  ActiveRepository (RepositoryName FilesystemPath)
+  TranscriptRoot (FilesystemPath)
+  TranscriptSource [(Claude TranscriptRoot) (ClaudeSubagentOutput TranscriptRoot) (Codex TranscriptRoot) (Pi TranscriptRoot)]
+  OutputInterfaceConfiguration (DurableFragileIndexPolicy OutputInterfaceLimitPolicy [LegacyRecoverySource])
+  DurableFragileIndexPolicy (DurableFragileIndexStorage FragileReferencePolicy StableOrderingTieBreaker)
+  DurableFragileIndexStorage [DaemonLocalStorePath]
+  FragileReferencePolicy [OpaqueStaleCapable]
+  StableOrderingTieBreaker [FragileReferenceAscending]
+  OutputInterfaceLimitPolicy (PageLimit ByteLimit ByteLimit ItemCount)
+  LegacyRecoverySource [(LegacyReports LegacyRecoveryRoot) (LegacyAgentOutputs LegacyRecoveryRoot)]
+  LegacyRecoveryRoot (FilesystemPath LegacyRecoveryAccess)
+  LegacyRecoveryAccess [ReadOnlyRecovery]
+  SocketMode (u32)
+  ConfigurationValidated (ConfigurationValidationOutcome)
+  ConfigurationValidationOutcome [Accepted (Rejected ConfigurationValidationReport)]
+  ConfigurationValidationReport ([ConfigurationValidationIssue])
+  ConfigurationValidationIssue (?FilesystemPath ConfigurationValidationIssueKind ?ValidationIssueDetail)
+  ConfigurationValidationIssueKind [MissingTranscriptSource MissingRepository UnreadablePath InvalidSocketMode MissingFragileIndexConfiguration InvalidFragileIndexConfiguration UnwritableFragileIndexStorage InvalidOutputInterfaceLimit InvalidLegacyRecoveryRoot]
+  ConfigurationRejected (OperationKind ConfigurationRejectionReason)
+}
+
+[
+  (Version 0 2)
+  (Status Scaffold)
+]
+"#;
 
 struct SchemaSketchWitness {
     full_text: &'static str,

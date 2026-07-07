@@ -91,6 +91,7 @@ pub struct TranscriptRoot {
 )]
 pub enum TranscriptSource {
     Claude(TranscriptRoot),
+    ClaudeSubagentOutput(TranscriptRoot),
     Codex(TranscriptRoot),
     Pi(TranscriptRoot),
 }
