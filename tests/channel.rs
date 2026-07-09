@@ -342,13 +342,13 @@ const EXPECTED_SCHEMA_SKETCH: &str = r#"{}
   ConfigurationCandidate (AggregatorConfiguration)
   ActiveRepository (RepositoryName FilesystemPath)
   TranscriptRoot (FilesystemPath)
-  TranscriptSource [(Claude TranscriptRoot) (ClaudeSubagentOutput TranscriptRoot) (Codex TranscriptRoot) (Pi TranscriptRoot)]
+  TranscriptSource [(Claude TranscriptRoot) (ClaudeSubagentOutput TranscriptRoot) (Codex TranscriptRoot) (Pi TranscriptRoot) (PiSubagentOutput TranscriptRoot)]
   OutputInterfaceConfiguration (DurableFragileIndexPolicy OutputInterfaceLimitPolicy [LegacyRecoverySource])
   DurableFragileIndexPolicy (DurableFragileIndexStorage FragileReferencePolicy StableOrderingTieBreaker)
   DurableFragileIndexStorage [DaemonLocalStorePath]
   FragileReferencePolicy [OpaqueStaleCapable]
   StableOrderingTieBreaker [FragileReferenceAscending]
-  OutputInterfaceLimitPolicy (PageLimit ByteLimit ByteLimit ItemCount)
+  OutputInterfaceLimitPolicy (PageLimit ByteLimit ByteLimit ItemCount ItemCount ItemCount ByteLimit ByteLimit ItemCount)
   LegacyRecoverySource [(LegacyReports LegacyRecoveryRoot) (LegacyAgentOutputs LegacyRecoveryRoot)]
   LegacyRecoveryRoot (FilesystemPath LegacyRecoveryAccess)
   LegacyRecoveryAccess [ReadOnlyRecovery]
