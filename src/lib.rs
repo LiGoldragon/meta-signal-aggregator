@@ -94,6 +94,7 @@ pub enum TranscriptSource {
     ClaudeSubagentOutput(TranscriptRoot),
     Codex(TranscriptRoot),
     Pi(TranscriptRoot),
+    PiSubagentOutput(TranscriptRoot),
 }
 
 /// Fine-controlled output interfaces use a durable daemon-local index whose
@@ -211,6 +212,11 @@ pub struct OutputInterfaceLimitPolicy {
     pub maximum_preview_bytes: ByteLimit,
     pub maximum_read_bytes: ByteLimit,
     pub maximum_recovery_files_per_root: ItemCount,
+    pub maximum_transcript_scan_entries: ItemCount,
+    pub maximum_transcript_discovered_files: ItemCount,
+    pub maximum_transcript_file_bytes: ByteLimit,
+    pub maximum_transcript_line_bytes: ByteLimit,
+    pub maximum_transcript_read_failures: ItemCount,
 }
 
 impl Default for OutputInterfaceLimitPolicy {
@@ -220,6 +226,11 @@ impl Default for OutputInterfaceLimitPolicy {
             maximum_preview_bytes: ByteLimit::new(4096),
             maximum_read_bytes: ByteLimit::new(65_536),
             maximum_recovery_files_per_root: ItemCount::new(1024),
+            maximum_transcript_scan_entries: ItemCount::new(131_072),
+            maximum_transcript_discovered_files: ItemCount::new(32_768),
+            maximum_transcript_file_bytes: ByteLimit::new(8 * 1024 * 1024),
+            maximum_transcript_line_bytes: ByteLimit::new(256 * 1024),
+            maximum_transcript_read_failures: ItemCount::new(1024),
         }
     }
 }

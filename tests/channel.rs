@@ -161,6 +161,11 @@ fn output_interface_defaults_keep_index_daemon_local_and_legacy_roots_disabled()
             maximum_preview_bytes: ByteLimit::new(4096),
             maximum_read_bytes: ByteLimit::new(65_536),
             maximum_recovery_files_per_root: ItemCount::new(1024),
+            maximum_transcript_scan_entries: ItemCount::new(131_072),
+            maximum_transcript_discovered_files: ItemCount::new(32_768),
+            maximum_transcript_file_bytes: ByteLimit::new(8 * 1024 * 1024),
+            maximum_transcript_line_bytes: ByteLimit::new(256 * 1024),
+            maximum_transcript_read_failures: ItemCount::new(1024),
         }
     );
     assert!(
