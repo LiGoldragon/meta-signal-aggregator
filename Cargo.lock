@@ -134,7 +134,7 @@ dependencies = [
 [[package]]
 name = "nota"
 version = "0.5.1"
-source = "git+https://github.com/LiGoldragon/nota.git?branch=main#ce7c564de0a0518eaa1938d55dccc460a67cadb4"
+source = "git+https://github.com/LiGoldragon/nota.git?branch=main#d25c08a87b897f2eac28621fb6c3d25801cdccfc"
 dependencies = [
  "nota-derive 0.3.0 (git+https://github.com/LiGoldragon/nota.git?branch=main)",
  "rkyv",
@@ -143,7 +143,7 @@ dependencies = [
 [[package]]
 name = "nota"
 version = "0.5.1"
-source = "git+https://github.com/LiGoldragon/nota-next.git?branch=main#ce7c564de0a0518eaa1938d55dccc460a67cadb4"
+source = "git+https://github.com/LiGoldragon/nota-next.git?branch=main#d25c08a87b897f2eac28621fb6c3d25801cdccfc"
 dependencies = [
  "nota-derive 0.3.0 (git+https://github.com/LiGoldragon/nota-next.git?branch=main)",
  "rkyv",
@@ -152,7 +152,7 @@ dependencies = [
 [[package]]
 name = "nota-derive"
 version = "0.3.0"
-source = "git+https://github.com/LiGoldragon/nota.git?branch=main#ce7c564de0a0518eaa1938d55dccc460a67cadb4"
+source = "git+https://github.com/LiGoldragon/nota.git?branch=main#d25c08a87b897f2eac28621fb6c3d25801cdccfc"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -162,11 +162,21 @@ dependencies = [
 [[package]]
 name = "nota-derive"
 version = "0.3.0"
-source = "git+https://github.com/LiGoldragon/nota-next.git?branch=main#ce7c564de0a0518eaa1938d55dccc460a67cadb4"
+source = "git+https://github.com/LiGoldragon/nota-next.git?branch=main#d25c08a87b897f2eac28621fb6c3d25801cdccfc"
 dependencies = [
  "proc-macro2",
  "quote",
  "syn",
+]
+
+[[package]]
+name = "nota-text-query"
+version = "0.1.0"
+source = "git+https://github.com/LiGoldragon/nota-text-query.git?branch=main#6140a3e9afe3f81c18a39cb0a11dec4eab68b561"
+dependencies = [
+ "nota 0.5.1 (git+https://github.com/LiGoldragon/nota-next.git?branch=main)",
+ "rkyv",
+ "thiserror",
 ]
 
 [[package]]
@@ -281,10 +291,11 @@ checksum = "b39cdef0fa800fc44525c84ccb54a029961a8215f9619753635a9c0d2538d46d"
 
 [[package]]
 name = "signal-aggregator"
-version = "0.2.0"
-source = "git+https://github.com/LiGoldragon/signal-aggregator?branch=main#49506971b34d99d5aa82498daa10075d97ad9b17"
+version = "0.5.0"
+source = "git+https://github.com/LiGoldragon/signal-aggregator?branch=main#d030e337cde23bdf0a1a5eac7d18db6567aef1e0"
 dependencies = [
  "nota 0.5.1 (git+https://github.com/LiGoldragon/nota-next.git?branch=main)",
+ "nota-text-query",
  "rkyv",
  "signal-frame",
  "thiserror",
@@ -293,7 +304,7 @@ dependencies = [
 [[package]]
 name = "signal-frame"
 version = "0.3.0"
-source = "git+https://github.com/LiGoldragon/signal-frame.git?branch=main#bb86bef67e478ff52690a4dcceec8f22d2b005ad"
+source = "git+https://github.com/LiGoldragon/signal-frame.git?branch=main#fd7909d1497b7bb18751521387a1087cd9e7c91c"
 dependencies = [
  "nota 0.5.1 (git+https://github.com/LiGoldragon/nota.git?branch=main)",
  "paste",
@@ -305,7 +316,7 @@ dependencies = [
 [[package]]
 name = "signal-frame-macros"
 version = "0.1.1"
-source = "git+https://github.com/LiGoldragon/signal-frame.git?branch=main#bb86bef67e478ff52690a4dcceec8f22d2b005ad"
+source = "git+https://github.com/LiGoldragon/signal-frame.git?branch=main#fd7909d1497b7bb18751521387a1087cd9e7c91c"
 dependencies = [
  "proc-macro2",
  "quote",
