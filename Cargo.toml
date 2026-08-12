@@ -13,11 +13,11 @@ name = "meta_signal_aggregator"
 path = "src/lib.rs"
 
 [features]
-default = ["nota-text"]
-nota-text = ["signal-frame/nota-text", "signal-aggregator/nota-text"]
+default = ["dotos-text"]
+dotos-text = ["signal-frame/dotos-text", "signal-aggregator/dotos-text"]
 
 [dependencies]
-nota              = { package = "nota", git = "https://github.com/LiGoldragon/nota-next.git", branch = "main" }
+dotos              = { package = "dotos", git = "https://github.com/LiGoldragon/dotos.git", rev = "1facca44fbcb" }
 signal-frame      = { git = "https://github.com/LiGoldragon/signal-frame.git", branch = "main" }
 signal-aggregator = { git = "https://github.com/LiGoldragon/signal-aggregator", branch = "main" }
 rkyv              = { version = "0.8", default-features = false, features = ["std", "bytecheck", "little_endian", "pointer_width_32", "unaligned"] }

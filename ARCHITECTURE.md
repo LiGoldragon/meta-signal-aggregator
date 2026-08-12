@@ -37,6 +37,6 @@ Signal/Nexus/SEMA path.
 schema/meta-signal.schema  authored schema sketch for the meta contract
 generated/README.md        schema-generation placeholder
 src/lib.rs                 Rust meta contract types plus `signal_channel!`
-examples/canonical.nota    canonical NOTA examples
-tests/channel.rs           NOTA/frame/boundary witnesses
+examples/canonical.dotos    canonical DOTOS examples
+tests/channel.rs           DOTOS/frame/boundary witnesses
 ```

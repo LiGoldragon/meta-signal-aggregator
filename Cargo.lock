@@ -104,7 +104,7 @@ dependencies = [
 name = "meta-signal-aggregator"
 version = "0.3.0"
 dependencies = [
- "nota 0.5.1 (git+https://github.com/LiGoldragon/nota-next.git?branch=main)",
+ "dotos 0.5.1 (git+https://github.com/LiGoldragon/dotos.git?branch=main)",
  "rkyv",
  "signal-aggregator",
  "signal-frame",
@@ -132,27 +132,27 @@ dependencies = [
 ]
 
 [[package]]
-name = "nota"
+name = "dotos"
 version = "0.5.1"
-source = "git+https://github.com/LiGoldragon/nota.git?branch=main#d25c08a87b897f2eac28621fb6c3d25801cdccfc"
+source = "git+https://github.com/LiGoldragon/dotos.git?branch=main#d25c08a87b897f2eac28621fb6c3d25801cdccfc"
 dependencies = [
- "nota-derive 0.3.0 (git+https://github.com/LiGoldragon/nota.git?branch=main)",
+ "dotos-derive 0.3.0 (git+https://github.com/LiGoldragon/dotos.git?branch=main)",
  "rkyv",
 ]
 
 [[package]]
-name = "nota"
+name = "dotos"
 version = "0.5.1"
-source = "git+https://github.com/LiGoldragon/nota-next.git?branch=main#d25c08a87b897f2eac28621fb6c3d25801cdccfc"
+source = "git+https://github.com/LiGoldragon/dotos.git?branch=main#d25c08a87b897f2eac28621fb6c3d25801cdccfc"
 dependencies = [
- "nota-derive 0.3.0 (git+https://github.com/LiGoldragon/nota-next.git?branch=main)",
+ "dotos-derive 0.3.0 (git+https://github.com/LiGoldragon/dotos.git?branch=main)",
  "rkyv",
 ]
 
 [[package]]
-name = "nota-derive"
+name = "dotos-derive"
 version = "0.3.0"
-source = "git+https://github.com/LiGoldragon/nota.git?branch=main#d25c08a87b897f2eac28621fb6c3d25801cdccfc"
+source = "git+https://github.com/LiGoldragon/dotos.git?branch=main#d25c08a87b897f2eac28621fb6c3d25801cdccfc"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -160,9 +160,9 @@ dependencies = [
 ]
 
 [[package]]
-name = "nota-derive"
+name = "dotos-derive"
 version = "0.3.0"
-source = "git+https://github.com/LiGoldragon/nota-next.git?branch=main#d25c08a87b897f2eac28621fb6c3d25801cdccfc"
+source = "git+https://github.com/LiGoldragon/dotos.git?branch=main#d25c08a87b897f2eac28621fb6c3d25801cdccfc"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -170,11 +170,11 @@ dependencies = [
 ]
 
 [[package]]
-name = "nota-text-query"
+name = "dotos-text-query"
 version = "0.1.0"
-source = "git+https://github.com/LiGoldragon/nota-text-query.git?branch=main#6140a3e9afe3f81c18a39cb0a11dec4eab68b561"
+source = "git+https://github.com/LiGoldragon/dotos-text-query.git?branch=main#6140a3e9afe3f81c18a39cb0a11dec4eab68b561"
 dependencies = [
- "nota 0.5.1 (git+https://github.com/LiGoldragon/nota-next.git?branch=main)",
+ "dotos 0.5.1 (git+https://github.com/LiGoldragon/dotos.git?branch=main)",
  "rkyv",
  "thiserror",
 ]
@@ -294,8 +294,8 @@ name = "signal-aggregator"
 version = "0.5.0"
 source = "git+https://github.com/LiGoldragon/signal-aggregator?branch=main#d030e337cde23bdf0a1a5eac7d18db6567aef1e0"
 dependencies = [
- "nota 0.5.1 (git+https://github.com/LiGoldragon/nota-next.git?branch=main)",
- "nota-text-query",
+ "dotos 0.5.1 (git+https://github.com/LiGoldragon/dotos.git?branch=main)",
+ "dotos-text-query",
  "rkyv",
  "signal-frame",
  "thiserror",
@@ -306,7 +306,7 @@ name = "signal-frame"
 version = "0.3.0"
 source = "git+https://github.com/LiGoldragon/signal-frame.git?branch=main#fd7909d1497b7bb18751521387a1087cd9e7c91c"
 dependencies = [
- "nota 0.5.1 (git+https://github.com/LiGoldragon/nota.git?branch=main)",
+ "dotos 0.5.1 (git+https://github.com/LiGoldragon/dotos.git?branch=main)",
  "paste",
  "rkyv",
  "signal-frame-macros",

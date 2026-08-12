@@ -10,7 +10,7 @@ use meta_signal_aggregator::{
     OutputInterfaceLimitPolicy, PageLimit, RepositoryName, SocketMode, StableOrderingTieBreaker,
     TranscriptRoot, TranscriptSource, ValidationIssueDetail,
 };
-use nota::{NotaDecode, NotaEncode, NotaSource};
+use dotos::{DotosDecode, DotosEncode, DotosSource};
 use signal_aggregator::{LimitPolicy, Projection, SegmentLimit};
 use signal_frame::{
     ExchangeIdentifier, ExchangeLane, LaneSequence, NonEmpty, Reply, RequestPayload, SessionEpoch,
@@ -80,12 +80,12 @@ fn round_trip_reply(reply_payload: MetaAggregatorReply) -> MetaAggregatorReply {
     }
 }
 
-fn round_trip_nota<Value>(value: Value)
+fn round_trip_dotos<Value>(value: Value)
 where
-    Value: NotaEncode + NotaDecode + PartialEq + std::fmt::Debug,
+    Value: DotosEncode + DotosDecode + PartialEq + std::fmt::Debug,
 {
-    let text = value.to_nota();
-    let decoded = NotaSource::new(&text).parse::<Value>().expect("decode");
+    let text = value.to_dotos();
+    let decoded = DotosSource::new(&text).parse::<Value>().expect("decode");
     assert_eq!(decoded, value);
 }
 
@@ -98,25 +98,25 @@ impl CanonicalExample {
     fn assert_matches_line(&self, line: &str) {
         match self {
             Self::Request(expected) => {
-                let decoded = NotaSource::new(line)
+                let decoded = DotosSource::new(line)
                     .parse::<MetaAggregatorRequest>()
                     .expect("canonical request decode");
                 assert_eq!(&decoded, expected, "canonical request decode for {line}");
-                assert_eq!(decoded.to_nota(), line, "canonical request encode");
+                assert_eq!(decoded.to_dotos(), line, "canonical request encode");
             }
             Self::Reply(expected) => {
-                let decoded = NotaSource::new(line)
+                let decoded = DotosSource::new(line)
                     .parse::<MetaAggregatorReply>()
                     .expect("canonical reply decode");
                 assert_eq!(&decoded, expected, "canonical reply decode for {line}");
-                assert_eq!(decoded.to_nota(), line, "canonical reply encode");
+                assert_eq!(decoded.to_dotos(), line, "canonical reply encode");
             }
         }
     }
 }
 
 fn canonical_example_lines() -> Vec<&'static str> {
-    include_str!("../examples/canonical.nota")
+    include_str!("../examples/canonical.dotos")
         .lines()
         .map(str::trim)
         .filter(|line| !line.is_empty() && !line.starts_with('#'))
@@ -189,12 +189,12 @@ fn legacy_recovery_roots_round_trip_as_read_only_sources() {
         ],
         ..OutputInterfaceConfiguration::default()
     };
-    round_trip_nota(output_interfaces);
+    round_trip_dotos(output_interfaces);
 }
 
 #[test]
-fn output_interface_validation_rejections_round_trip_through_nota() {
-    round_trip_nota(MetaAggregatorReply::ConfigurationValidated(
+fn output_interface_validation_rejections_round_trip_through_dotos() {
+    round_trip_dotos(MetaAggregatorReply::ConfigurationValidated(
         ConfigurationValidated {
             outcome: ConfigurationValidationOutcome::Rejected(ConfigurationValidationReport {
                 issues: vec![
@@ -234,8 +234,8 @@ fn configure_request_round_trips_through_frame() {
 }
 
 #[test]
-fn observe_configuration_request_round_trips_through_nota() {
-    round_trip_nota(MetaAggregatorRequest::ObserveConfiguration(
+fn observe_configuration_request_round_trips_through_dotos() {
+    round_trip_dotos(MetaAggregatorRequest::ObserveConfiguration(
         ObserveConfiguration { observer: None },
     ));
 }
@@ -257,8 +257,8 @@ fn validation_reply_round_trips_through_frame() {
 }
 
 #[test]
-fn rejection_reply_round_trips_through_nota() {
-    round_trip_nota(MetaAggregatorReply::ConfigurationRejected(
+fn rejection_reply_round_trips_through_dotos() {
+    round_trip_dotos(MetaAggregatorReply::ConfigurationRejected(
         ConfigurationRejected {
             operation: MetaAggregatorOperationKind::Configure,
             reason: ConfigurationRejectionReason::InvalidConfiguration,

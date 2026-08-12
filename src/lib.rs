@@ -3,7 +3,7 @@
 //! This crate carries configuration operations only. Collection and storage
 //! live in the `aggregator` runtime crate.
 
-use nota::{NotaDecode, NotaEncode};
+use dotos::{DotosDecode, DotosEncode};
 use rkyv::{Archive, Deserialize as RkyvDeserialize, Serialize as RkyvSerialize};
 pub use signal_aggregator::{ByteLimit, ItemCount, LimitPolicy, PageLimit, Projection};
 use signal_frame::signal_channel;
@@ -14,8 +14,8 @@ macro_rules! string_newtype {
             Archive,
             RkyvSerialize,
             RkyvDeserialize,
-            NotaEncode,
-            NotaDecode,
+            DotosEncode,
+            DotosDecode,
             Debug,
             Clone,
             PartialEq,
@@ -42,8 +42,8 @@ macro_rules! mode_newtype {
             Archive,
             RkyvSerialize,
             RkyvDeserialize,
-            NotaEncode,
-            NotaDecode,
+            DotosEncode,
+            DotosDecode,
             Debug,
             Clone,
             Copy,
@@ -72,7 +72,7 @@ string_newtype!(ValidationIssueDetail);
 mode_newtype!(SocketMode, u32, into_u32);
 
 #[derive(
-    Archive, RkyvSerialize, RkyvDeserialize, NotaEncode, NotaDecode, Debug, Clone, PartialEq, Eq,
+    Archive, RkyvSerialize, RkyvDeserialize, DotosEncode, DotosDecode, Debug, Clone, PartialEq, Eq,
 )]
 pub struct ActiveRepository {
     pub name: RepositoryName,
@@ -80,14 +80,14 @@ pub struct ActiveRepository {
 }
 
 #[derive(
-    Archive, RkyvSerialize, RkyvDeserialize, NotaEncode, NotaDecode, Debug, Clone, PartialEq, Eq,
+    Archive, RkyvSerialize, RkyvDeserialize, DotosEncode, DotosDecode, Debug, Clone, PartialEq, Eq,
 )]
 pub struct TranscriptRoot {
     pub path: FilesystemPath,
 }
 
 #[derive(
-    Archive, RkyvSerialize, RkyvDeserialize, NotaEncode, NotaDecode, Debug, Clone, PartialEq, Eq,
+    Archive, RkyvSerialize, RkyvDeserialize, DotosEncode, DotosDecode, Debug, Clone, PartialEq, Eq,
 )]
 pub enum TranscriptSource {
     Claude(TranscriptRoot),
@@ -104,8 +104,8 @@ pub enum TranscriptSource {
     Archive,
     RkyvSerialize,
     RkyvDeserialize,
-    NotaEncode,
-    NotaDecode,
+    DotosEncode,
+    DotosDecode,
     Debug,
     Default,
     Clone,
@@ -124,8 +124,8 @@ pub struct OutputInterfaceConfiguration {
     Archive,
     RkyvSerialize,
     RkyvDeserialize,
-    NotaEncode,
-    NotaDecode,
+    DotosEncode,
+    DotosDecode,
     Debug,
     Default,
     Clone,
@@ -142,8 +142,8 @@ pub struct DurableFragileIndexPolicy {
     Archive,
     RkyvSerialize,
     RkyvDeserialize,
-    NotaEncode,
-    NotaDecode,
+    DotosEncode,
+    DotosDecode,
     Debug,
     Default,
     Clone,
@@ -164,8 +164,8 @@ pub enum DurableFragileIndexStorage {
     Archive,
     RkyvSerialize,
     RkyvDeserialize,
-    NotaEncode,
-    NotaDecode,
+    DotosEncode,
+    DotosDecode,
     Debug,
     Default,
     Clone,
@@ -185,8 +185,8 @@ pub enum FragileReferencePolicy {
     Archive,
     RkyvSerialize,
     RkyvDeserialize,
-    NotaEncode,
-    NotaDecode,
+    DotosEncode,
+    DotosDecode,
     Debug,
     Default,
     Clone,
@@ -205,7 +205,7 @@ pub enum StableOrderingTieBreaker {
 /// Runtime ceilings for output listing, preview, read, and legacy recovery
 /// source discovery. Exact read ranges are still enforced by the runtime.
 #[derive(
-    Archive, RkyvSerialize, RkyvDeserialize, NotaEncode, NotaDecode, Debug, Clone, PartialEq, Eq,
+    Archive, RkyvSerialize, RkyvDeserialize, DotosEncode, DotosDecode, Debug, Clone, PartialEq, Eq,
 )]
 pub struct OutputInterfaceLimitPolicy {
     pub maximum_page_items: PageLimit,
@@ -236,7 +236,7 @@ impl Default for OutputInterfaceLimitPolicy {
 }
 
 #[derive(
-    Archive, RkyvSerialize, RkyvDeserialize, NotaEncode, NotaDecode, Debug, Clone, PartialEq, Eq,
+    Archive, RkyvSerialize, RkyvDeserialize, DotosEncode, DotosDecode, Debug, Clone, PartialEq, Eq,
 )]
 pub enum LegacyRecoverySource {
     LegacyReports(LegacyRecoveryRoot),
@@ -246,7 +246,7 @@ pub enum LegacyRecoverySource {
 /// Optional legacy source root. These roots are read-only recovery inputs and
 /// are not source-of-truth design surfaces.
 #[derive(
-    Archive, RkyvSerialize, RkyvDeserialize, NotaEncode, NotaDecode, Debug, Clone, PartialEq, Eq,
+    Archive, RkyvSerialize, RkyvDeserialize, DotosEncode, DotosDecode, Debug, Clone, PartialEq, Eq,
 )]
 pub struct LegacyRecoveryRoot {
     pub path: FilesystemPath,
@@ -257,8 +257,8 @@ pub struct LegacyRecoveryRoot {
     Archive,
     RkyvSerialize,
     RkyvDeserialize,
-    NotaEncode,
-    NotaDecode,
+    DotosEncode,
+    DotosDecode,
     Debug,
     Clone,
     Copy,
@@ -271,7 +271,7 @@ pub enum LegacyRecoveryAccess {
 }
 
 #[derive(
-    Archive, RkyvSerialize, RkyvDeserialize, NotaEncode, NotaDecode, Debug, Clone, PartialEq, Eq,
+    Archive, RkyvSerialize, RkyvDeserialize, DotosEncode, DotosDecode, Debug, Clone, PartialEq, Eq,
 )]
 pub struct AggregatorConfiguration {
     pub ordinary_socket_path: FilesystemPath,
@@ -287,28 +287,28 @@ pub struct AggregatorConfiguration {
 }
 
 #[derive(
-    Archive, RkyvSerialize, RkyvDeserialize, NotaEncode, NotaDecode, Debug, Clone, PartialEq, Eq,
+    Archive, RkyvSerialize, RkyvDeserialize, DotosEncode, DotosDecode, Debug, Clone, PartialEq, Eq,
 )]
 pub struct ConfigurationChange {
     pub configuration: AggregatorConfiguration,
 }
 
 #[derive(
-    Archive, RkyvSerialize, RkyvDeserialize, NotaEncode, NotaDecode, Debug, Clone, PartialEq, Eq,
+    Archive, RkyvSerialize, RkyvDeserialize, DotosEncode, DotosDecode, Debug, Clone, PartialEq, Eq,
 )]
 pub struct ObserveConfiguration {
     pub observer: Option<ConfigurationObserver>,
 }
 
 #[derive(
-    Archive, RkyvSerialize, RkyvDeserialize, NotaEncode, NotaDecode, Debug, Clone, PartialEq, Eq,
+    Archive, RkyvSerialize, RkyvDeserialize, DotosEncode, DotosDecode, Debug, Clone, PartialEq, Eq,
 )]
 pub struct ConfigurationCandidate {
     pub configuration: AggregatorConfiguration,
 }
 
 #[derive(
-    Archive, RkyvSerialize, RkyvDeserialize, NotaEncode, NotaDecode, Debug, Clone, PartialEq, Eq,
+    Archive, RkyvSerialize, RkyvDeserialize, DotosEncode, DotosDecode, Debug, Clone, PartialEq, Eq,
 )]
 pub struct ConfigurationConfigured {
     pub configuration: AggregatorConfiguration,
@@ -316,17 +316,17 @@ pub struct ConfigurationConfigured {
 
 #[allow(clippy::large_enum_variant)]
 #[derive(
-    Archive, RkyvSerialize, RkyvDeserialize, NotaEncode, NotaDecode, Debug, Clone, PartialEq, Eq,
+    Archive, RkyvSerialize, RkyvDeserialize, DotosEncode, DotosDecode, Debug, Clone, PartialEq, Eq,
 )]
 pub enum ConfigurationObservation {
     /// The meta observation reply intentionally carries the full configuration
-    /// inline so its NOTA and rkyv shape matches the configured value.
+    /// inline so its DOTOS and rkyv shape matches the configured value.
     Configured(AggregatorConfiguration),
     NotConfigured,
 }
 
 #[derive(
-    Archive, RkyvSerialize, RkyvDeserialize, NotaEncode, NotaDecode, Debug, Clone, PartialEq, Eq,
+    Archive, RkyvSerialize, RkyvDeserialize, DotosEncode, DotosDecode, Debug, Clone, PartialEq, Eq,
 )]
 pub struct ConfigurationObserved {
     pub observation: ConfigurationObservation,
@@ -336,8 +336,8 @@ pub struct ConfigurationObserved {
     Archive,
     RkyvSerialize,
     RkyvDeserialize,
-    NotaEncode,
-    NotaDecode,
+    DotosEncode,
+    DotosDecode,
     Debug,
     Clone,
     Copy,
@@ -358,7 +358,7 @@ pub enum ConfigurationValidationIssueKind {
 }
 
 #[derive(
-    Archive, RkyvSerialize, RkyvDeserialize, NotaEncode, NotaDecode, Debug, Clone, PartialEq, Eq,
+    Archive, RkyvSerialize, RkyvDeserialize, DotosEncode, DotosDecode, Debug, Clone, PartialEq, Eq,
 )]
 pub struct ConfigurationValidationIssue {
     pub path: Option<FilesystemPath>,
@@ -367,14 +367,14 @@ pub struct ConfigurationValidationIssue {
 }
 
 #[derive(
-    Archive, RkyvSerialize, RkyvDeserialize, NotaEncode, NotaDecode, Debug, Clone, PartialEq, Eq,
+    Archive, RkyvSerialize, RkyvDeserialize, DotosEncode, DotosDecode, Debug, Clone, PartialEq, Eq,
 )]
 pub struct ConfigurationValidationReport {
     pub issues: Vec<ConfigurationValidationIssue>,
 }
 
 #[derive(
-    Archive, RkyvSerialize, RkyvDeserialize, NotaEncode, NotaDecode, Debug, Clone, PartialEq, Eq,
+    Archive, RkyvSerialize, RkyvDeserialize, DotosEncode, DotosDecode, Debug, Clone, PartialEq, Eq,
 )]
 pub enum ConfigurationValidationOutcome {
     Accepted,
@@ -382,7 +382,7 @@ pub enum ConfigurationValidationOutcome {
 }
 
 #[derive(
-    Archive, RkyvSerialize, RkyvDeserialize, NotaEncode, NotaDecode, Debug, Clone, PartialEq, Eq,
+    Archive, RkyvSerialize, RkyvDeserialize, DotosEncode, DotosDecode, Debug, Clone, PartialEq, Eq,
 )]
 pub struct ConfigurationValidated {
     pub outcome: ConfigurationValidationOutcome,
@@ -392,8 +392,8 @@ pub struct ConfigurationValidated {
     Archive,
     RkyvSerialize,
     RkyvDeserialize,
-    NotaEncode,
-    NotaDecode,
+    DotosEncode,
+    DotosDecode,
     Debug,
     Clone,
     Copy,
@@ -409,7 +409,7 @@ pub enum ConfigurationRejectionReason {
 }
 
 #[derive(
-    Archive, RkyvSerialize, RkyvDeserialize, NotaEncode, NotaDecode, Debug, Clone, PartialEq, Eq,
+    Archive, RkyvSerialize, RkyvDeserialize, DotosEncode, DotosDecode, Debug, Clone, PartialEq, Eq,
 )]
 pub struct ConfigurationRejected {
     pub operation: OperationKind,
