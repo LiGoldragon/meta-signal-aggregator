@@ -1,6 +1,6 @@
 [package]
 name = "meta-signal-aggregator"
-version = "0.5.0"
+version = "0.6.0"
 edition = "2024"
 rust-version = "1.89"
 license = "MIT OR Apache-2.0"
@@ -22,7 +22,7 @@ datom-codec = { git = "https://github.com/LiGoldragon/datom-codec", rev = "627db
 protos = { git = "https://github.com/LiGoldragon/protos", rev = "171b21f65337983ab624b7b906397a4f1f92c5a3", optional = true }
 rkyv = { version = "0.8", default-features = false, features = ["std", "bytecheck", "little_endian", "pointer_width_32", "unaligned"] }
 signal = { git = "https://github.com/LiGoldragon/signal", rev = "8f9a0deb701cebbea518679548df4a795affc918", default-features = false }
-signal-aggregator = { git = "https://github.com/LiGoldragon/signal-aggregator", rev = "234ed6420867b431323603f78f984c0fe997a7f3", default-features = false }
+signal-aggregator = { git = "https://github.com/LiGoldragon/signal-aggregator", rev = "e5009d65527a5ac9658fb85f03685e26c78ec85c", default-features = false }
 
 [build-dependencies]
 ethos-zero = { git = "https://github.com/LiGoldragon/ethos-zero", rev = "de3d9928b156f2e1a92d060b7817af201abfdbef" }

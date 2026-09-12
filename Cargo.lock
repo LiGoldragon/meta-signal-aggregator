@@ -135,7 +135,7 @@ dependencies = [
 
 [[package]]
 name = "meta-signal-aggregator"
-version = "0.5.0"
+version = "0.6.0"
 dependencies = [
  "datom-codec",
  "ethos-zero",
@@ -298,8 +298,8 @@ dependencies = [
 
 [[package]]
 name = "signal-aggregator"
-version = "0.7.0"
-source = "git+https://github.com/LiGoldragon/signal-aggregator?rev=234ed6420867b431323603f78f984c0fe997a7f3#234ed6420867b431323603f78f984c0fe997a7f3"
+version = "0.8.0"
+source = "git+https://github.com/LiGoldragon/signal-aggregator?rev=e5009d65527a5ac9658fb85f03685e26c78ec85c#e5009d65527a5ac9658fb85f03685e26c78ec85c"
 dependencies = [
  "datom-codec",
  "ethos-zero",
