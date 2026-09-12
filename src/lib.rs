@@ -9,6 +9,7 @@ pub use signal_aggregator::{ByteLimit, ItemCount, LimitPolicy, PageLimit, Projec
 use signal_frame::signal_channel;
 
 /// The meta Aggregator contract occupies the second wire seat in its family.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum MetaAggregatorWire {}
 
 impl signal_frame::WireContract for MetaAggregatorWire {
@@ -451,5 +452,14 @@ pub type MetaAggregatorReplyEnvelope = ReplyEnvelope;
 impl MetaAggregatorRequest {
     pub fn operation_kind(&self) -> MetaAggregatorOperationKind {
         self.kind()
+    }
+
+    /// Contract-local request route: root zero carries requests, and the
+    /// variant byte is the operation's position in this contract's heads.
+    pub fn wire_route(&self) -> signal_frame::WireRoute {
+        signal_frame::WireRoute::new(
+            signal_frame::RootCode::new(0),
+            signal_frame::VariantCode::new(self.kind() as u8),
+        )
     }
 }
