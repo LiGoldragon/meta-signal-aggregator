@@ -1,0 +1,91 @@
+; The meta Aggregator Signal contract: configuration only.
+;
+; Collection, storage, and policy enforcement live in the aggregator runtime.
+Signal
+[ signal_aggregator:[ Projection LimitPolicy PageLimit ByteLimit ItemCount ] ]
+[ Configure.ConfigurationChange
+  ObserveConfiguration.ConfigurationObservationQuery
+  ValidateConfiguration.ConfigurationCandidate ]
+[ ConfigurationConfigured.ConfigurationConfigured
+  ConfigurationObserved.ConfigurationObserved
+  ConfigurationValidated.ConfigurationValidated
+  ConfigurationRejected.ConfigurationRejected ]
+[ FilesystemPath.String
+  RepositoryName.String
+  ConfigurationObserver.String
+  ValidationIssueDetail.String
+  SocketMode.Integer
+
+  OperationKind.[ Configure ObserveConfiguration ValidateConfiguration ]
+
+  ActiveRepository.{ RepositoryName FilesystemPath }
+  ActiveRepositories.Vector<ActiveRepository>
+  TranscriptRoot.{ FilesystemPath }
+  TranscriptSource.[ Claude.TranscriptRoot
+                     ClaudeSubagentOutput.TranscriptRoot
+                     Codex.TranscriptRoot
+                     Pi.TranscriptRoot
+                     PiSubagentOutput.TranscriptRoot ]
+  TranscriptSources.Vector<TranscriptSource>
+
+  DurableFragileIndexStorage.[ DaemonLocalStorePath ]
+  FragileReferencePolicy.[ OpaqueStaleCapable ]
+  StableOrderingTieBreaker.[ FragileReferenceAscending ]
+  DurableFragileIndexPolicy.{ DurableFragileIndexStorage FragileReferencePolicy
+                              StableOrderingTieBreaker }
+
+  MaximumPageItems.PageLimit
+  MaximumPreviewBytes.ByteLimit
+  MaximumReadBytes.ByteLimit
+  MaximumRecoveryFilesPerRoot.ItemCount
+  MaximumTranscriptScanEntries.ItemCount
+  MaximumTranscriptDiscoveredFiles.ItemCount
+  MaximumTranscriptFileBytes.ByteLimit
+  MaximumTranscriptLineBytes.ByteLimit
+  MaximumTranscriptReadFailures.ItemCount
+  OutputInterfaceLimitPolicy.{ MaximumPageItems MaximumPreviewBytes MaximumReadBytes
+                               MaximumRecoveryFilesPerRoot MaximumTranscriptScanEntries
+                               MaximumTranscriptDiscoveredFiles MaximumTranscriptFileBytes
+                               MaximumTranscriptLineBytes MaximumTranscriptReadFailures }
+
+  LegacyRecoveryAccess.[ ReadOnlyRecovery ]
+  LegacyRecoveryRoot.{ FilesystemPath LegacyRecoveryAccess }
+  LegacyRecoverySource.[ LegacyReports.LegacyRecoveryRoot
+                         LegacyAgentOutputs.LegacyRecoveryRoot ]
+  LegacyRecoverySources.Vector<LegacyRecoverySource>
+  OutputInterfaceConfiguration.{ DurableFragileIndexPolicy OutputInterfaceLimitPolicy
+                                 LegacyRecoverySources }
+
+  OrdinarySocketPath.FilesystemPath
+  OrdinarySocketMode.SocketMode
+  MetaSocketPath.FilesystemPath
+  MetaSocketMode.SocketMode
+  StorePath.FilesystemPath
+  DefaultProjection.Projection
+  DefaultLimitPolicy.LimitPolicy
+  AggregatorConfiguration.{ OrdinarySocketPath OrdinarySocketMode MetaSocketPath MetaSocketMode
+                            StorePath ActiveRepositories TranscriptSources DefaultProjection
+                            DefaultLimitPolicy OutputInterfaceConfiguration }
+
+  ConfigurationChange.{ AggregatorConfiguration }
+  ConfigurationObservationQuery.{ Option<ConfigurationObserver> }
+  ConfigurationCandidate.{ AggregatorConfiguration }
+  ConfigurationConfigured.{ AggregatorConfiguration }
+  ConfigurationObservation.[ Configured.AggregatorConfiguration NotConfigured ]
+  ConfigurationObserved.{ ConfigurationObservation }
+
+  ConfigurationValidationIssueKind.[ MissingTranscriptSource MissingRepository UnreadablePath
+                                     InvalidSocketMode MissingFragileIndexConfiguration
+                                     InvalidFragileIndexConfiguration
+                                     UnwritableFragileIndexStorage InvalidOutputInterfaceLimit
+                                     InvalidLegacyRecoveryRoot ]
+  ConfigurationValidationIssue.{ Option<FilesystemPath> ConfigurationValidationIssueKind
+                                 Option<ValidationIssueDetail> }
+  ConfigurationValidationIssues.Vector<ConfigurationValidationIssue>
+  ConfigurationValidationReport.{ ConfigurationValidationIssues }
+  ConfigurationValidationOutcome.[ Accepted Rejected.ConfigurationValidationReport ]
+  ConfigurationValidated.{ ConfigurationValidationOutcome }
+
+  ConfigurationRejectionReason.[ InvalidConfiguration StoreUnavailable NotAuthorized
+                                 NotInPrototypeScope ]
+  ConfigurationRejected.{ OperationKind ConfigurationRejectionReason } ]

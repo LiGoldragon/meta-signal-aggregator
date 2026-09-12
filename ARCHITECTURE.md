@@ -34,9 +34,13 @@ Signal/Nexus/SEMA path.
 ## Code map
 
 ```text
-schema/meta-signal.schema  authored schema sketch for the meta contract
-generated/README.md        schema-generation placeholder
-src/lib.rs                 Rust meta contract types plus `signal_channel!`
-examples/canonical.dotos    canonical DOTOS examples
-tests/channel.rs           DOTOS/frame/boundary witnesses
+ethos/signal.ethos          the schema authority: queries, responses, and types
+build.rs                    regenerates from the ethos and refuses drift
+src/generated/signal.rs     the checked-in Rust projection
+src/lib.rs                  the module surface and the runtime default ceilings
+tests/generated_contract.rs rkyv frame and Datom text round-trip witnesses
 ```
+
+The ceilings the old contract carried as `Default` impls are now the
+`DefaultingPolicy` kind in `src/lib.rs`: the generated projection derives no
+`Default`, and a ceiling is a policy a runtime asks for, not a zero value.

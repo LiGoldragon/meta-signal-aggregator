@@ -24,11 +24,10 @@
           "rust-src"
         ];
         craneLib = (crane.mkLib pkgs).overrideToolchain toolchain;
-        examplesFilter = path: _type: builtins.match ".*/examples(/.*)?$" path != null;
-        schemaFilter = path: _type: builtins.match ".*/schema(/.*)?$" path != null;
-        generatedFilter = path: _type: builtins.match ".*/generated(/.*)?$" path != null;
+        ethosFilter = path: type:
+          type == "regular" && pkgs.lib.hasSuffix ".ethos" path;
         sourceFilter = path: type:
-          (craneLib.filterCargoSources path type) || (examplesFilter path type) || (schemaFilter path type) || (generatedFilter path type);
+          type == "directory" || (craneLib.filterCargoSources path type) || (ethosFilter path type);
         src = pkgs.lib.cleanSourceWith { src = ./.; filter = sourceFilter; name = "source"; };
         commonArgs = { inherit src; strictDeps = true; };
         cargoArtifacts = craneLib.buildDepsOnly commonArgs;
@@ -38,14 +37,26 @@
         checks = {
           build = craneLib.cargoBuild (commonArgs // { inherit cargoArtifacts; });
           test = craneLib.cargoTest (commonArgs // { inherit cargoArtifacts; });
-          test-channel = craneLib.cargoTest (commonArgs // {
+          test-generated-contract = craneLib.cargoTest (commonArgs // {
             inherit cargoArtifacts;
-            cargoTestExtraArgs = "--test channel";
+            cargoTestExtraArgs = "--test generated_contract";
+          });
+          test-datom = craneLib.cargoTest (commonArgs // {
+            inherit cargoArtifacts;
+            cargoTestExtraArgs = "--features datom --test generated_contract";
+          });
+          test-doc = craneLib.cargoTest (commonArgs // {
+            inherit cargoArtifacts;
+            cargoTestExtraArgs = "--doc";
+          });
+          doc = craneLib.cargoDoc (commonArgs // {
+            inherit cargoArtifacts;
+            RUSTDOCFLAGS = "-D warnings";
           });
           fmt = craneLib.cargoFmt { inherit src; };
           clippy = craneLib.cargoClippy (commonArgs // {
             inherit cargoArtifacts;
-            cargoClippyExtraArgs = "--all-targets -- -D warnings";
+            cargoClippyExtraArgs = "--all-targets --all-features -- -D warnings";
           });
         };
         devShells.default = pkgs.mkShell {

@@ -1,465 +1,59 @@
 //! Meta Signal contract for aggregator configuration.
 //!
-//! This crate carries configuration operations only. Collection and storage
+//! The contract carries configuration operations only. Collection and storage
 //! live in the `aggregator` runtime crate.
+//!
+//! `ethos/signal.ethos` is the schema authority; `build.rs` checks the
+//! checked-in Rust projection in `src/generated/signal.rs` against it. The
+//! portable rkyv frame, its kinds, and the wire framing come from `signal`.
 
-use dotos::{DotosDecode, DotosEncode};
-use rkyv::{Archive, Deserialize as RkyvDeserialize, Serialize as RkyvSerialize};
+pub mod generated;
+pub use generated::signal::*;
+
 pub use signal_aggregator::{ByteLimit, ItemCount, LimitPolicy, PageLimit, Projection};
-use signal_frame::signal_channel;
 
-/// The meta Aggregator contract occupies the second wire seat in its family.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum MetaAggregatorWire {}
+/// The authored Ethos source of this contract.
+pub const ETHOS: &str = include_str!("../ethos/signal.ethos");
+/// The Rust projection generated from [`ETHOS`].
+pub const ETHOS_RUST: &str = include_str!("generated/signal.rs");
 
-impl signal_frame::WireContract for MetaAggregatorWire {
-    const BINDING: signal_frame::ContractBinding = signal_frame::ContractBinding::new(
-        signal_frame::ContractId::new(
-            core::num::NonZeroU32::new(2).expect("the meta Aggregator contract id is non-zero"),
-        ),
-        signal_frame::WireRevision::new(core::num::NonZeroU16::MIN),
-    );
+/// The ceilings a runtime applies when the configuration names none.
+pub trait DefaultingPolicy {
+    fn default_policy() -> Self;
 }
 
-macro_rules! string_newtype {
-    ($name:ident) => {
-        #[derive(
-            Archive,
-            RkyvSerialize,
-            RkyvDeserialize,
-            DotosEncode,
-            DotosDecode,
-            Debug,
-            Clone,
-            PartialEq,
-            Eq,
-            Hash,
-        )]
-        pub struct $name(String);
-
-        impl $name {
-            pub fn new(value: impl Into<String>) -> Self {
-                Self(value.into())
-            }
-
-            pub fn as_str(&self) -> &str {
-                &self.0
-            }
-        }
-    };
-}
-
-macro_rules! mode_newtype {
-    ($name:ident, $inner:ty, $getter:ident) => {
-        #[derive(
-            Archive,
-            RkyvSerialize,
-            RkyvDeserialize,
-            DotosEncode,
-            DotosDecode,
-            Debug,
-            Clone,
-            Copy,
-            PartialEq,
-            Eq,
-            Hash,
-        )]
-        pub struct $name($inner);
-
-        impl $name {
-            pub fn new(value: $inner) -> Self {
-                Self(value)
-            }
-
-            pub fn $getter(self) -> $inner {
-                self.0
-            }
-        }
-    };
-}
-
-string_newtype!(FilesystemPath);
-string_newtype!(RepositoryName);
-string_newtype!(ConfigurationObserver);
-string_newtype!(ValidationIssueDetail);
-mode_newtype!(SocketMode, u32, into_u32);
-
-#[derive(
-    Archive, RkyvSerialize, RkyvDeserialize, DotosEncode, DotosDecode, Debug, Clone, PartialEq, Eq,
-)]
-pub struct ActiveRepository {
-    pub name: RepositoryName,
-    pub path: FilesystemPath,
-}
-
-#[derive(
-    Archive, RkyvSerialize, RkyvDeserialize, DotosEncode, DotosDecode, Debug, Clone, PartialEq, Eq,
-)]
-pub struct TranscriptRoot {
-    pub path: FilesystemPath,
-}
-
-#[derive(
-    Archive, RkyvSerialize, RkyvDeserialize, DotosEncode, DotosDecode, Debug, Clone, PartialEq, Eq,
-)]
-pub enum TranscriptSource {
-    Claude(TranscriptRoot),
-    ClaudeSubagentOutput(TranscriptRoot),
-    Codex(TranscriptRoot),
-    Pi(TranscriptRoot),
-    PiSubagentOutput(TranscriptRoot),
-}
-
-/// Fine-controlled output interfaces use a durable daemon-local index whose
-/// references remain fragile because backing transcript and artifact files can
-/// move, change, or disappear.
-#[derive(
-    Archive,
-    RkyvSerialize,
-    RkyvDeserialize,
-    DotosEncode,
-    DotosDecode,
-    Debug,
-    Default,
-    Clone,
-    PartialEq,
-    Eq,
-)]
-pub struct OutputInterfaceConfiguration {
-    pub fragile_index: DurableFragileIndexPolicy,
-    pub limits: OutputInterfaceLimitPolicy,
-    pub legacy_recovery_sources: Vec<LegacyRecoverySource>,
-}
-
-/// Policy for the aggregator-owned opaque index. The policy is durable, but
-/// the references it produces are explicitly stale-capable.
-#[derive(
-    Archive,
-    RkyvSerialize,
-    RkyvDeserialize,
-    DotosEncode,
-    DotosDecode,
-    Debug,
-    Default,
-    Clone,
-    PartialEq,
-    Eq,
-)]
-pub struct DurableFragileIndexPolicy {
-    pub storage: DurableFragileIndexStorage,
-    pub references: FragileReferencePolicy,
-    pub ordering_tie_breaker: StableOrderingTieBreaker,
-}
-
-#[derive(
-    Archive,
-    RkyvSerialize,
-    RkyvDeserialize,
-    DotosEncode,
-    DotosDecode,
-    Debug,
-    Default,
-    Clone,
-    Copy,
-    PartialEq,
-    Eq,
-    Hash,
-)]
-pub enum DurableFragileIndexStorage {
-    #[default]
-    /// Persist the index in the daemon-local store named by
-    /// [`AggregatorConfiguration::store_path`], never in repositories or legacy
-    /// recovery roots.
-    DaemonLocalStorePath,
-}
-
-#[derive(
-    Archive,
-    RkyvSerialize,
-    RkyvDeserialize,
-    DotosEncode,
-    DotosDecode,
-    Debug,
-    Default,
-    Clone,
-    Copy,
-    PartialEq,
-    Eq,
-    Hash,
-)]
-pub enum FragileReferencePolicy {
-    #[default]
-    /// References are daemon-local opaque handles. Runtime readers must reject
-    /// stale or broken references instead of promising stable file identity.
-    OpaqueStaleCapable,
-}
-
-#[derive(
-    Archive,
-    RkyvSerialize,
-    RkyvDeserialize,
-    DotosEncode,
-    DotosDecode,
-    Debug,
-    Default,
-    Clone,
-    Copy,
-    PartialEq,
-    Eq,
-    Hash,
-)]
-pub enum StableOrderingTieBreaker {
-    #[default]
-    /// After the requested listing order, break ties by opaque fragile
-    /// reference so pagination stays deterministic for an unchanged index.
-    FragileReferenceAscending,
-}
-
-/// Runtime ceilings for output listing, preview, read, and legacy recovery
-/// source discovery. Exact read ranges are still enforced by the runtime.
-#[derive(
-    Archive, RkyvSerialize, RkyvDeserialize, DotosEncode, DotosDecode, Debug, Clone, PartialEq, Eq,
-)]
-pub struct OutputInterfaceLimitPolicy {
-    pub maximum_page_items: PageLimit,
-    pub maximum_preview_bytes: ByteLimit,
-    pub maximum_read_bytes: ByteLimit,
-    pub maximum_recovery_files_per_root: ItemCount,
-    pub maximum_transcript_scan_entries: ItemCount,
-    pub maximum_transcript_discovered_files: ItemCount,
-    pub maximum_transcript_file_bytes: ByteLimit,
-    pub maximum_transcript_line_bytes: ByteLimit,
-    pub maximum_transcript_read_failures: ItemCount,
-}
-
-impl Default for OutputInterfaceLimitPolicy {
-    fn default() -> Self {
+impl DefaultingPolicy for DurableFragileIndexPolicy {
+    fn default_policy() -> Self {
         Self {
-            maximum_page_items: PageLimit::new(64),
-            maximum_preview_bytes: ByteLimit::new(4096),
-            maximum_read_bytes: ByteLimit::new(65_536),
-            maximum_recovery_files_per_root: ItemCount::new(1024),
-            maximum_transcript_scan_entries: ItemCount::new(131_072),
-            maximum_transcript_discovered_files: ItemCount::new(32_768),
-            maximum_transcript_file_bytes: ByteLimit::new(8 * 1024 * 1024),
-            maximum_transcript_line_bytes: ByteLimit::new(256 * 1024),
-            maximum_transcript_read_failures: ItemCount::new(1024),
+            durable_fragile_index_storage: DurableFragileIndexStorage::DaemonLocalStorePath,
+            fragile_reference_policy: FragileReferencePolicy::OpaqueStaleCapable,
+            stable_ordering_tie_breaker: StableOrderingTieBreaker::FragileReferenceAscending,
         }
     }
 }
 
-#[derive(
-    Archive, RkyvSerialize, RkyvDeserialize, DotosEncode, DotosDecode, Debug, Clone, PartialEq, Eq,
-)]
-pub enum LegacyRecoverySource {
-    LegacyReports(LegacyRecoveryRoot),
-    LegacyAgentOutputs(LegacyRecoveryRoot),
-}
-
-/// Optional legacy source root. These roots are read-only recovery inputs and
-/// are not source-of-truth design surfaces.
-#[derive(
-    Archive, RkyvSerialize, RkyvDeserialize, DotosEncode, DotosDecode, Debug, Clone, PartialEq, Eq,
-)]
-pub struct LegacyRecoveryRoot {
-    pub path: FilesystemPath,
-    pub access: LegacyRecoveryAccess,
-}
-
-#[derive(
-    Archive,
-    RkyvSerialize,
-    RkyvDeserialize,
-    DotosEncode,
-    DotosDecode,
-    Debug,
-    Clone,
-    Copy,
-    PartialEq,
-    Eq,
-    Hash,
-)]
-pub enum LegacyRecoveryAccess {
-    ReadOnlyRecovery,
-}
-
-#[derive(
-    Archive, RkyvSerialize, RkyvDeserialize, DotosEncode, DotosDecode, Debug, Clone, PartialEq, Eq,
-)]
-pub struct AggregatorConfiguration {
-    pub ordinary_socket_path: FilesystemPath,
-    pub ordinary_socket_mode: SocketMode,
-    pub meta_socket_path: FilesystemPath,
-    pub meta_socket_mode: SocketMode,
-    pub store_path: FilesystemPath,
-    pub active_repositories: Vec<ActiveRepository>,
-    pub transcript_sources: Vec<TranscriptSource>,
-    pub default_projection: Projection,
-    pub default_limit_policy: LimitPolicy,
-    pub output_interfaces: OutputInterfaceConfiguration,
-}
-
-#[derive(
-    Archive, RkyvSerialize, RkyvDeserialize, DotosEncode, DotosDecode, Debug, Clone, PartialEq, Eq,
-)]
-pub struct ConfigurationChange {
-    pub configuration: AggregatorConfiguration,
-}
-
-#[derive(
-    Archive, RkyvSerialize, RkyvDeserialize, DotosEncode, DotosDecode, Debug, Clone, PartialEq, Eq,
-)]
-pub struct ObserveConfiguration {
-    pub observer: Option<ConfigurationObserver>,
-}
-
-#[derive(
-    Archive, RkyvSerialize, RkyvDeserialize, DotosEncode, DotosDecode, Debug, Clone, PartialEq, Eq,
-)]
-pub struct ConfigurationCandidate {
-    pub configuration: AggregatorConfiguration,
-}
-
-#[derive(
-    Archive, RkyvSerialize, RkyvDeserialize, DotosEncode, DotosDecode, Debug, Clone, PartialEq, Eq,
-)]
-pub struct ConfigurationConfigured {
-    pub configuration: AggregatorConfiguration,
-}
-
-#[allow(clippy::large_enum_variant)]
-#[derive(
-    Archive, RkyvSerialize, RkyvDeserialize, DotosEncode, DotosDecode, Debug, Clone, PartialEq, Eq,
-)]
-pub enum ConfigurationObservation {
-    /// The meta observation reply intentionally carries the full configuration
-    /// inline so its DOTOS and rkyv shape matches the configured value.
-    Configured(AggregatorConfiguration),
-    NotConfigured,
-}
-
-#[derive(
-    Archive, RkyvSerialize, RkyvDeserialize, DotosEncode, DotosDecode, Debug, Clone, PartialEq, Eq,
-)]
-pub struct ConfigurationObserved {
-    pub observation: ConfigurationObservation,
-}
-
-#[derive(
-    Archive,
-    RkyvSerialize,
-    RkyvDeserialize,
-    DotosEncode,
-    DotosDecode,
-    Debug,
-    Clone,
-    Copy,
-    PartialEq,
-    Eq,
-    Hash,
-)]
-pub enum ConfigurationValidationIssueKind {
-    MissingTranscriptSource,
-    MissingRepository,
-    UnreadablePath,
-    InvalidSocketMode,
-    MissingFragileIndexConfiguration,
-    InvalidFragileIndexConfiguration,
-    UnwritableFragileIndexStorage,
-    InvalidOutputInterfaceLimit,
-    InvalidLegacyRecoveryRoot,
-}
-
-#[derive(
-    Archive, RkyvSerialize, RkyvDeserialize, DotosEncode, DotosDecode, Debug, Clone, PartialEq, Eq,
-)]
-pub struct ConfigurationValidationIssue {
-    pub path: Option<FilesystemPath>,
-    pub kind: ConfigurationValidationIssueKind,
-    pub detail: Option<ValidationIssueDetail>,
-}
-
-#[derive(
-    Archive, RkyvSerialize, RkyvDeserialize, DotosEncode, DotosDecode, Debug, Clone, PartialEq, Eq,
-)]
-pub struct ConfigurationValidationReport {
-    pub issues: Vec<ConfigurationValidationIssue>,
-}
-
-#[derive(
-    Archive, RkyvSerialize, RkyvDeserialize, DotosEncode, DotosDecode, Debug, Clone, PartialEq, Eq,
-)]
-pub enum ConfigurationValidationOutcome {
-    Accepted,
-    Rejected(ConfigurationValidationReport),
-}
-
-#[derive(
-    Archive, RkyvSerialize, RkyvDeserialize, DotosEncode, DotosDecode, Debug, Clone, PartialEq, Eq,
-)]
-pub struct ConfigurationValidated {
-    pub outcome: ConfigurationValidationOutcome,
-}
-
-#[derive(
-    Archive,
-    RkyvSerialize,
-    RkyvDeserialize,
-    DotosEncode,
-    DotosDecode,
-    Debug,
-    Clone,
-    Copy,
-    PartialEq,
-    Eq,
-    Hash,
-)]
-pub enum ConfigurationRejectionReason {
-    InvalidConfiguration,
-    StoreUnavailable,
-    NotAuthorized,
-    NotInPrototypeScope,
-}
-
-#[derive(
-    Archive, RkyvSerialize, RkyvDeserialize, DotosEncode, DotosDecode, Debug, Clone, PartialEq, Eq,
-)]
-pub struct ConfigurationRejected {
-    pub operation: OperationKind,
-    pub reason: ConfigurationRejectionReason,
-}
-
-signal_channel! {
-    channel MetaAggregator contract MetaAggregatorWire {
-        operation Configure(ConfigurationChange),
-        operation ObserveConfiguration(ObserveConfiguration),
-        operation ValidateConfiguration(ConfigurationCandidate),
-    }
-    reply MetaAggregatorReply {
-        ConfigurationConfigured(ConfigurationConfigured),
-        ConfigurationObserved(ConfigurationObserved),
-        ConfigurationValidated(ConfigurationValidated),
-        ConfigurationRejected(ConfigurationRejected),
+impl DefaultingPolicy for OutputInterfaceLimitPolicy {
+    fn default_policy() -> Self {
+        Self {
+            maximum_page_items: 64,
+            maximum_preview_bytes: 4096,
+            maximum_read_bytes: 65_536,
+            maximum_recovery_files_per_root: 1024,
+            maximum_transcript_scan_entries: 131_072,
+            maximum_transcript_discovered_files: 32_768,
+            maximum_transcript_file_bytes: 8 * 1024 * 1024,
+            maximum_transcript_line_bytes: 256 * 1024,
+            maximum_transcript_read_failures: 1024,
+        }
     }
 }
 
-pub type MetaAggregatorRequest = Operation;
-pub type MetaAggregatorOperationKind = OperationKind;
-pub type MetaAggregatorFrame = Frame;
-pub type MetaAggregatorFrameBody = FrameBody;
-pub type MetaAggregatorReplyEnvelope = ReplyEnvelope;
-
-impl MetaAggregatorRequest {
-    pub fn operation_kind(&self) -> MetaAggregatorOperationKind {
-        self.kind()
-    }
-
-    /// Contract-local request route: root zero carries requests, and the
-    /// variant byte is the operation's position in this contract's heads.
-    pub fn wire_route(&self) -> signal_frame::WireRoute {
-        signal_frame::WireRoute::new(
-            signal_frame::RootCode::new(0),
-            signal_frame::VariantCode::new(self.kind() as u8),
-        )
+impl DefaultingPolicy for OutputInterfaceConfiguration {
+    fn default_policy() -> Self {
+        Self {
+            durable_fragile_index_policy: DurableFragileIndexPolicy::default_policy(),
+            output_interface_limit_policy: OutputInterfaceLimitPolicy::default_policy(),
+            legacy_recovery_sources: Vec::new(),
+        }
     }
 }

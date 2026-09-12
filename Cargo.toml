@@ -1,29 +1,33 @@
 [package]
-name         = "meta-signal-aggregator"
-version      = "0.4.0"
-edition      = "2024"
+name = "meta-signal-aggregator"
+version = "0.5.0"
+edition = "2024"
 rust-version = "1.89"
-license      = "MIT OR Apache-2.0"
-repository   = "https://github.com/LiGoldragon/meta-signal-aggregator"
-description  = "Meta Signal configuration contract for aggregator."
-publish      = false
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/LiGoldragon/meta-signal-aggregator"
+description = "Meta Signal configuration contract for aggregator."
+publish = false
+build = "build.rs"
 
 [lib]
 name = "meta_signal_aggregator"
 path = "src/lib.rs"
 
 [features]
-default = ["dotos-text"]
-dotos-text = ["signal-frame/dotos-text", "signal-aggregator/dotos-text"]
+default = []
+datom = ["dep:datom-codec", "dep:protos", "signal/datom", "signal-aggregator/datom"]
 
 [dependencies]
-dotos              = { package = "dotos", git = "https://github.com/LiGoldragon/dotos.git", rev = "80c7b17f7ad3cf547d2624c6a243e5de5f85c9f3" }
-signal-frame      = { git = "https://github.com/LiGoldragon/signal-frame.git", rev = "8aa0bcaeb29fe9e461a11706a469638d2fd109ac" }
-signal-aggregator = { git = "https://github.com/LiGoldragon/signal-aggregator", rev = "5d2b80e21f1a79b1025731d269ceb03c64f26d5b" }
-rkyv              = { version = "0.8", default-features = false, features = ["std", "bytecheck", "little_endian", "pointer_width_32", "unaligned"] }
-thiserror         = "2"
+datom-codec = { git = "https://github.com/LiGoldragon/datom-codec", rev = "627db67f2655efd9f786864009955005fd8ab2ad", optional = true }
+protos = { git = "https://github.com/LiGoldragon/protos", rev = "171b21f65337983ab624b7b906397a4f1f92c5a3", optional = true }
+rkyv = { version = "0.8", default-features = false, features = ["std", "bytecheck", "little_endian", "pointer_width_32", "unaligned"] }
+signal = { git = "https://github.com/LiGoldragon/signal", rev = "8f9a0deb701cebbea518679548df4a795affc918", default-features = false }
+signal-aggregator = { git = "https://github.com/LiGoldragon/signal-aggregator", rev = "234ed6420867b431323603f78f984c0fe997a7f3", default-features = false }
+
+[build-dependencies]
+ethos-zero = { git = "https://github.com/LiGoldragon/ethos-zero", rev = "de3d9928b156f2e1a92d060b7817af201abfdbef" }
 
 [lints.rust]
 unsafe_code = "forbid"
-unused      = { level = "warn", priority = -1 }
-dead_code   = "warn"
+unused = { level = "warn", priority = -1 }
+dead_code = "warn"
