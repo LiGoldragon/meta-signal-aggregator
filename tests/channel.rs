@@ -1,3 +1,4 @@
+use dotos::{DotosDecode, DotosEncode, DotosSource};
 use meta_signal_aggregator::{
     ActiveRepository, AggregatorConfiguration, ByteLimit, ConfigurationCandidate,
     ConfigurationChange, ConfigurationRejected, ConfigurationRejectionReason,
@@ -10,12 +11,21 @@ use meta_signal_aggregator::{
     OutputInterfaceLimitPolicy, PageLimit, RepositoryName, SocketMode, StableOrderingTieBreaker,
     TranscriptRoot, TranscriptSource, ValidationIssueDetail,
 };
-use dotos::{DotosDecode, DotosEncode, DotosSource};
 use signal_aggregator::{LimitPolicy, Projection, SegmentLimit};
 use signal_frame::{
-    ExchangeIdentifier, ExchangeLane, LaneSequence, NonEmpty, Reply, RequestPayload, SessionEpoch,
-    SignalOperationHeads, SubReply,
+    ExchangeIdentifier, ExchangeLane, LaneSequence, NonEmpty, Reply, RequestPayload, RootCode,
+    SessionEpoch, SignalOperationHeads, SubReply, VariantCode, WireRoute,
 };
+
+/// The contract binds route meaning locally; the round trip only needs a
+/// stable request/reply pair, so root 0 carries requests and root 1 replies.
+fn request_route() -> WireRoute {
+    WireRoute::new(RootCode::new(0), VariantCode::new(0))
+}
+
+fn reply_route() -> WireRoute {
+    WireRoute::new(RootCode::new(1), VariantCode::new(0))
+}
 
 fn configuration() -> AggregatorConfiguration {
     AggregatorConfiguration {
@@ -49,10 +59,13 @@ fn exchange() -> ExchangeIdentifier {
 }
 
 fn round_trip_request(request: MetaAggregatorRequest) -> MetaAggregatorRequest {
-    let frame = MetaAggregatorFrame::new(MetaAggregatorFrameBody::Request {
-        exchange: exchange(),
-        request: request.clone().into_request(),
-    });
+    let frame = MetaAggregatorFrame::new(
+        request_route(),
+        MetaAggregatorFrameBody::Request {
+            exchange: exchange(),
+            request: request.clone().into_request(),
+        },
+    );
     let bytes = frame.encode_length_prefixed().expect("encode");
     let decoded = MetaAggregatorFrame::decode_length_prefixed(&bytes).expect("decode");
     match decoded.into_body() {
@@ -62,10 +75,13 @@ fn round_trip_request(request: MetaAggregatorRequest) -> MetaAggregatorRequest {
 }
 
 fn round_trip_reply(reply_payload: MetaAggregatorReply) -> MetaAggregatorReply {
-    let frame = MetaAggregatorFrame::new(MetaAggregatorFrameBody::Reply {
-        exchange: exchange(),
-        reply: Reply::committed(NonEmpty::single(SubReply::Ok(reply_payload.clone()))),
-    });
+    let frame = MetaAggregatorFrame::new(
+        reply_route(),
+        MetaAggregatorFrameBody::Reply {
+            exchange: exchange(),
+            reply: Reply::committed(NonEmpty::single(SubReply::Ok(reply_payload.clone()))),
+        },
+    );
     let bytes = frame.encode_length_prefixed().expect("encode");
     let decoded = MetaAggregatorFrame::decode_length_prefixed(&bytes).expect("decode");
     match decoded.into_body() {
@@ -266,9 +282,8 @@ fn rejection_reply_round_trips_through_dotos() {
     ));
 }
 
-#[test]
-fn canonical_examples_match_file_order_and_boundaries() {
-    let expected_examples = [
+fn canonical_examples() -> [CanonicalExample; 5] {
+    [
         CanonicalExample::Request(MetaAggregatorRequest::Configure(ConfigurationChange {
             configuration: canonical_configuration(),
         })),
@@ -291,7 +306,12 @@ fn canonical_examples_match_file_order_and_boundaries() {
                 reason: ConfigurationRejectionReason::InvalidConfiguration,
             },
         )),
-    ];
+    ]
+}
+
+#[test]
+fn canonical_examples_match_file_order_and_boundaries() {
+    let expected_examples = canonical_examples();
     let actual_lines = canonical_example_lines();
     assert_eq!(
         actual_lines.len(),

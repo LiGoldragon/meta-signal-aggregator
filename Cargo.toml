@@ -1,6 +1,6 @@
 [package]
 name         = "meta-signal-aggregator"
-version      = "0.3.0"
+version      = "0.4.0"
 edition      = "2024"
 rust-version = "1.89"
 license      = "MIT OR Apache-2.0"
@@ -17,9 +17,9 @@ default = ["dotos-text"]
 dotos-text = ["signal-frame/dotos-text", "signal-aggregator/dotos-text"]
 
 [dependencies]
-dotos              = { package = "dotos", git = "https://github.com/LiGoldragon/dotos.git", rev = "1facca44fbcb" }
-signal-frame      = { git = "https://github.com/LiGoldragon/signal-frame.git", branch = "main" }
-signal-aggregator = { git = "https://github.com/LiGoldragon/signal-aggregator", branch = "main" }
+dotos              = { package = "dotos", git = "https://github.com/LiGoldragon/dotos.git", rev = "80c7b17f7ad3cf547d2624c6a243e5de5f85c9f3" }
+signal-frame      = { git = "https://github.com/LiGoldragon/signal-frame.git", rev = "8aa0bcaeb29fe9e461a11706a469638d2fd109ac" }
+signal-aggregator = { git = "https://github.com/LiGoldragon/signal-aggregator", rev = "f1c93519c0770eb26cefbdeb594518905d929119" }
 rkyv              = { version = "0.8", default-features = false, features = ["std", "bytecheck", "little_endian", "pointer_width_32", "unaligned"] }
 thiserror         = "2"
 

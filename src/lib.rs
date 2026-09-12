@@ -8,6 +8,18 @@ use rkyv::{Archive, Deserialize as RkyvDeserialize, Serialize as RkyvSerialize};
 pub use signal_aggregator::{ByteLimit, ItemCount, LimitPolicy, PageLimit, Projection};
 use signal_frame::signal_channel;
 
+/// The meta Aggregator contract occupies the second wire seat in its family.
+pub enum MetaAggregatorWire {}
+
+impl signal_frame::WireContract for MetaAggregatorWire {
+    const BINDING: signal_frame::ContractBinding = signal_frame::ContractBinding::new(
+        signal_frame::ContractId::new(
+            core::num::NonZeroU32::new(2).expect("the meta Aggregator contract id is non-zero"),
+        ),
+        signal_frame::WireRevision::new(core::num::NonZeroU16::MIN),
+    );
+}
+
 macro_rules! string_newtype {
     ($name:ident) => {
         #[derive(
@@ -417,7 +429,7 @@ pub struct ConfigurationRejected {
 }
 
 signal_channel! {
-    channel MetaAggregator {
+    channel MetaAggregator contract MetaAggregatorWire {
         operation Configure(ConfigurationChange),
         operation ObserveConfiguration(ObserveConfiguration),
         operation ValidateConfiguration(ConfigurationCandidate),
