@@ -273,7 +273,7 @@ checksum = "cf54715a573b99ac80df0bc206da022bcd442c974952c7b9720069370852e21f"
 [[package]]
 name = "signal-aggregator"
 version = "0.6.0"
-source = "git+https://github.com/LiGoldragon/signal-aggregator?rev=f1c93519c0770eb26cefbdeb594518905d929119#f1c93519c0770eb26cefbdeb594518905d929119"
+source = "git+https://github.com/LiGoldragon/signal-aggregator?rev=5d2b80e21f1a79b1025731d269ceb03c64f26d5b#5d2b80e21f1a79b1025731d269ceb03c64f26d5b"
 dependencies = [
  "dotos",
  "dotos-text-query",

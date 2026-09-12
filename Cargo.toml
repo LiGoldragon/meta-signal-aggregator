@@ -19,7 +19,7 @@ dotos-text = ["signal-frame/dotos-text", "signal-aggregator/dotos-text"]
 [dependencies]
 dotos              = { package = "dotos", git = "https://github.com/LiGoldragon/dotos.git", rev = "80c7b17f7ad3cf547d2624c6a243e5de5f85c9f3" }
 signal-frame      = { git = "https://github.com/LiGoldragon/signal-frame.git", rev = "8aa0bcaeb29fe9e461a11706a469638d2fd109ac" }
-signal-aggregator = { git = "https://github.com/LiGoldragon/signal-aggregator", rev = "f1c93519c0770eb26cefbdeb594518905d929119" }
+signal-aggregator = { git = "https://github.com/LiGoldragon/signal-aggregator", rev = "5d2b80e21f1a79b1025731d269ceb03c64f26d5b" }
 rkyv              = { version = "0.8", default-features = false, features = ["std", "bytecheck", "little_endian", "pointer_width_32", "unaligned"] }
 thiserror         = "2"
 
