@@ -1,6 +1,6 @@
 [package]
 name = "meta-signal-aggregator"
-version = "0.7.0"
+version = "0.8.0"
 edition = "2024"
 rust-version = "1.89"
 license = "MIT OR Apache-2.0"
@@ -22,10 +22,10 @@ datom-codec = { git = "https://github.com/LiGoldragon/datom-codec", rev = "6dccc
 protos = { git = "https://github.com/LiGoldragon/protos", rev = "171b21f65337983ab624b7b906397a4f1f92c5a3", optional = true }
 rkyv = { version = "0.8", default-features = false, features = ["std", "bytecheck", "little_endian", "pointer_width_32", "unaligned"] }
 signal = { git = "https://github.com/LiGoldragon/signal", rev = "48ae17b485f2781e8ec1ca02a7fe04ad28a37f9f", default-features = false }
-signal-aggregator = { git = "https://github.com/LiGoldragon/signal-aggregator", rev = "b21dc9fdf8580341a66dfceb01e9aae1b36b9783", default-features = false }
+signal-aggregator = { git = "https://github.com/LiGoldragon/signal-aggregator", rev = "d5ce22622bb499da89a87a394d01da9d31dffbb7", default-features = false }
 
 [build-dependencies]
-ethos-zero = { git = "https://github.com/LiGoldragon/ethos-zero", rev = "b232d35e03011161fe7ec9129ad99a9914413348" }
+ethos-zero = { git = "https://github.com/LiGoldragon/ethos-zero", rev = "407f938d083a89236ef8c2c6e8a90561ec6b637a" }
 
 [lints.rust]
 unsafe_code = "forbid"
