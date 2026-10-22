@@ -29,7 +29,7 @@ This crate owns only configuration wire vocabulary and tests. It does not read
 Claude, Codex, Pi, repository, legacy report, or legacy agent-output sources; it
 does not implement collection; it does not store daemon state. The runtime
 daemon imports these types and applies configuration through its meta
-Signal/Nexus/SEMA path.
+Signal/Nexus/MEMORY path.
 
 ## Code map
 
