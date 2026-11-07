@@ -1,14 +1,29 @@
-#![allow(dead_code, non_camel_case_types, non_snake_case)]
+#![allow(
+    dead_code,
+    non_camel_case_types,
+    non_snake_case,
+    clippy::type_complexity
+)]
 #[rustfmt::skip]
-pub type FilesystemPath = String;
+#[derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[cfg_attr(feature = "datom", derive(datom_codec::Datomizable, datom_codec::Composing))]
+pub struct FilesystemPath(pub String);
 #[rustfmt::skip]
-pub type RepositoryName = String;
+#[derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[cfg_attr(feature = "datom", derive(datom_codec::Datomizable, datom_codec::Composing))]
+pub struct RepositoryName(pub String);
 #[rustfmt::skip]
-pub type ConfigurationObserver = String;
+#[derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[cfg_attr(feature = "datom", derive(datom_codec::Datomizable, datom_codec::Composing))]
+pub struct ConfigurationObserver(pub String);
 #[rustfmt::skip]
-pub type ValidationIssueDetail = String;
+#[derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[cfg_attr(feature = "datom", derive(datom_codec::Datomizable, datom_codec::Composing))]
+pub struct ValidationIssueDetail(pub String);
 #[rustfmt::skip]
-pub type SocketMode = i64;
+#[derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize, Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[cfg_attr(feature = "datom", derive(datom_codec::Datomizable, datom_codec::Composing))]
+pub struct SocketMode(pub i64);
 #[rustfmt::skip]
 #[derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize, Clone, Debug, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "datom", derive(datom_codec::Datomizable, datom_codec::Composing))]
@@ -25,7 +40,9 @@ pub struct ActiveRepository {
     pub filesystem_path: FilesystemPath,
 }
 #[rustfmt::skip]
-pub type ActiveRepositories = std::vec::Vec<ActiveRepository>;
+#[derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize, Clone, Debug, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "datom", derive(datom_codec::Datomizable, datom_codec::Composing))]
+pub struct ActiveRepositories(pub std::vec::Vec<ActiveRepository>);
 #[rustfmt::skip]
 #[derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize, Clone, Debug, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "datom", derive(datom_codec::Datomizable, datom_codec::Composing))]
@@ -43,7 +60,9 @@ pub enum TranscriptSource {
     PiSubagentOutput(TranscriptRoot),
 }
 #[rustfmt::skip]
-pub type TranscriptSources = std::vec::Vec<TranscriptSource>;
+#[derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize, Clone, Debug, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "datom", derive(datom_codec::Datomizable, datom_codec::Composing))]
+pub struct TranscriptSources(pub std::vec::Vec<TranscriptSource>);
 #[rustfmt::skip]
 #[derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize, Clone, Debug, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "datom", derive(datom_codec::Datomizable, datom_codec::Composing))]
@@ -71,23 +90,41 @@ pub struct DurableFragileIndexPolicy {
     pub stable_ordering_tie_breaker: StableOrderingTieBreaker,
 }
 #[rustfmt::skip]
-pub type MaximumPageItems = signal_aggregator::PageLimit;
+#[derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize, Clone, Debug, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "datom", derive(datom_codec::Datomizable, datom_codec::Composing))]
+pub struct MaximumPageItems(pub signal_aggregator::PageLimit);
 #[rustfmt::skip]
-pub type MaximumPreviewBytes = signal_aggregator::ByteLimit;
+#[derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize, Clone, Debug, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "datom", derive(datom_codec::Datomizable, datom_codec::Composing))]
+pub struct MaximumPreviewBytes(pub signal_aggregator::ByteLimit);
 #[rustfmt::skip]
-pub type MaximumReadBytes = signal_aggregator::ByteLimit;
+#[derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize, Clone, Debug, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "datom", derive(datom_codec::Datomizable, datom_codec::Composing))]
+pub struct MaximumReadBytes(pub signal_aggregator::ByteLimit);
 #[rustfmt::skip]
-pub type MaximumRecoveryFilesPerRoot = signal_aggregator::ItemCount;
+#[derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize, Clone, Debug, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "datom", derive(datom_codec::Datomizable, datom_codec::Composing))]
+pub struct MaximumRecoveryFilesPerRoot(pub signal_aggregator::ItemCount);
 #[rustfmt::skip]
-pub type MaximumTranscriptScanEntries = signal_aggregator::ItemCount;
+#[derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize, Clone, Debug, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "datom", derive(datom_codec::Datomizable, datom_codec::Composing))]
+pub struct MaximumTranscriptScanEntries(pub signal_aggregator::ItemCount);
 #[rustfmt::skip]
-pub type MaximumTranscriptDiscoveredFiles = signal_aggregator::ItemCount;
+#[derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize, Clone, Debug, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "datom", derive(datom_codec::Datomizable, datom_codec::Composing))]
+pub struct MaximumTranscriptDiscoveredFiles(pub signal_aggregator::ItemCount);
 #[rustfmt::skip]
-pub type MaximumTranscriptFileBytes = signal_aggregator::ByteLimit;
+#[derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize, Clone, Debug, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "datom", derive(datom_codec::Datomizable, datom_codec::Composing))]
+pub struct MaximumTranscriptFileBytes(pub signal_aggregator::ByteLimit);
 #[rustfmt::skip]
-pub type MaximumTranscriptLineBytes = signal_aggregator::ByteLimit;
+#[derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize, Clone, Debug, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "datom", derive(datom_codec::Datomizable, datom_codec::Composing))]
+pub struct MaximumTranscriptLineBytes(pub signal_aggregator::ByteLimit);
 #[rustfmt::skip]
-pub type MaximumTranscriptReadFailures = signal_aggregator::ItemCount;
+#[derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize, Clone, Debug, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "datom", derive(datom_codec::Datomizable, datom_codec::Composing))]
+pub struct MaximumTranscriptReadFailures(pub signal_aggregator::ItemCount);
 #[rustfmt::skip]
 #[derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize, Clone, Debug, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "datom", derive(datom_codec::Datomizable, datom_codec::Composing))]
@@ -123,7 +160,9 @@ pub enum LegacyRecoverySource {
     LegacyAgentOutputs(LegacyRecoveryRoot),
 }
 #[rustfmt::skip]
-pub type LegacyRecoverySources = std::vec::Vec<LegacyRecoverySource>;
+#[derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize, Clone, Debug, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "datom", derive(datom_codec::Datomizable, datom_codec::Composing))]
+pub struct LegacyRecoverySources(pub std::vec::Vec<LegacyRecoverySource>);
 #[rustfmt::skip]
 #[derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize, Clone, Debug, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "datom", derive(datom_codec::Datomizable, datom_codec::Composing))]
@@ -133,19 +172,33 @@ pub struct OutputInterfaceConfiguration {
     pub legacy_recovery_sources: LegacyRecoverySources,
 }
 #[rustfmt::skip]
-pub type OrdinarySocketPath = FilesystemPath;
+#[derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[cfg_attr(feature = "datom", derive(datom_codec::Datomizable, datom_codec::Composing))]
+pub struct OrdinarySocketPath(pub FilesystemPath);
 #[rustfmt::skip]
-pub type OrdinarySocketMode = SocketMode;
+#[derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize, Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[cfg_attr(feature = "datom", derive(datom_codec::Datomizable, datom_codec::Composing))]
+pub struct OrdinarySocketMode(pub SocketMode);
 #[rustfmt::skip]
-pub type MetaSocketPath = FilesystemPath;
+#[derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[cfg_attr(feature = "datom", derive(datom_codec::Datomizable, datom_codec::Composing))]
+pub struct MetaSocketPath(pub FilesystemPath);
 #[rustfmt::skip]
-pub type MetaSocketMode = SocketMode;
+#[derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize, Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[cfg_attr(feature = "datom", derive(datom_codec::Datomizable, datom_codec::Composing))]
+pub struct MetaSocketMode(pub SocketMode);
 #[rustfmt::skip]
-pub type StorePath = FilesystemPath;
+#[derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[cfg_attr(feature = "datom", derive(datom_codec::Datomizable, datom_codec::Composing))]
+pub struct StorePath(pub FilesystemPath);
 #[rustfmt::skip]
-pub type DefaultProjection = signal_aggregator::Projection;
+#[derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize, Clone, Debug, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "datom", derive(datom_codec::Datomizable, datom_codec::Composing))]
+pub struct DefaultProjection(pub signal_aggregator::Projection);
 #[rustfmt::skip]
-pub type DefaultLimitPolicy = signal_aggregator::LimitPolicy;
+#[derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize, Clone, Debug, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "datom", derive(datom_codec::Datomizable, datom_codec::Composing))]
+pub struct DefaultLimitPolicy(pub signal_aggregator::LimitPolicy);
 #[rustfmt::skip]
 #[derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize, Clone, Debug, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "datom", derive(datom_codec::Datomizable, datom_codec::Composing))]
@@ -221,7 +274,11 @@ pub struct ConfigurationValidationIssue {
     pub validation_issue_detail_option: std::option::Option<ValidationIssueDetail>,
 }
 #[rustfmt::skip]
-pub type ConfigurationValidationIssues = std::vec::Vec<ConfigurationValidationIssue>;
+#[derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize, Clone, Debug, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "datom", derive(datom_codec::Datomizable, datom_codec::Composing))]
+pub struct ConfigurationValidationIssues(
+    pub std::vec::Vec<ConfigurationValidationIssue>,
+);
 #[rustfmt::skip]
 #[derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize, Clone, Debug, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "datom", derive(datom_codec::Datomizable, datom_codec::Composing))]

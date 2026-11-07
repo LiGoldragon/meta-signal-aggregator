@@ -35,15 +35,17 @@ impl DefaultingPolicy for DurableFragileIndexPolicy {
 impl DefaultingPolicy for OutputInterfaceLimitPolicy {
     fn default_policy() -> Self {
         Self {
-            maximum_page_items: 64,
-            maximum_preview_bytes: 4096,
-            maximum_read_bytes: 65_536,
-            maximum_recovery_files_per_root: 1024,
-            maximum_transcript_scan_entries: 131_072,
-            maximum_transcript_discovered_files: 32_768,
-            maximum_transcript_file_bytes: 8 * 1024 * 1024,
-            maximum_transcript_line_bytes: 256 * 1024,
-            maximum_transcript_read_failures: 1024,
+            maximum_page_items: MaximumPageItems(PageLimit(64)),
+            maximum_preview_bytes: MaximumPreviewBytes(ByteLimit(4096)),
+            maximum_read_bytes: MaximumReadBytes(ByteLimit(65_536)),
+            maximum_recovery_files_per_root: MaximumRecoveryFilesPerRoot(ItemCount(1024)),
+            maximum_transcript_scan_entries: MaximumTranscriptScanEntries(ItemCount(131_072)),
+            maximum_transcript_discovered_files: MaximumTranscriptDiscoveredFiles(ItemCount(
+                32_768,
+            )),
+            maximum_transcript_file_bytes: MaximumTranscriptFileBytes(ByteLimit(8 * 1024 * 1024)),
+            maximum_transcript_line_bytes: MaximumTranscriptLineBytes(ByteLimit(256 * 1024)),
+            maximum_transcript_read_failures: MaximumTranscriptReadFailures(ItemCount(1024)),
         }
     }
 }
@@ -53,7 +55,7 @@ impl DefaultingPolicy for OutputInterfaceConfiguration {
         Self {
             durable_fragile_index_policy: DurableFragileIndexPolicy::default_policy(),
             output_interface_limit_policy: OutputInterfaceLimitPolicy::default_policy(),
-            legacy_recovery_sources: Vec::new(),
+            legacy_recovery_sources: LegacyRecoverySources(Vec::new()),
         }
     }
 }

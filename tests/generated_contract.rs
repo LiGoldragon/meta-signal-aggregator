@@ -1,27 +1,33 @@
 use meta_signal_aggregator::{
-    AggregatorConfiguration, ConfigurationChange, ConfigurationObservation, ConfigurationObserved,
-    ConfigurationRejectionReason, DefaultingPolicy, OperationKind, OutputInterfaceConfiguration,
-    Query, Response, TranscriptRoot, TranscriptSource,
+    ActiveRepositories, AggregatorConfiguration, ConfigurationChange, ConfigurationObservation,
+    ConfigurationObserved, ConfigurationRejectionReason, DefaultLimitPolicy, DefaultProjection,
+    DefaultingPolicy, FilesystemPath, MetaSocketMode, MetaSocketPath, OperationKind,
+    OrdinarySocketMode, OrdinarySocketPath, OutputInterfaceConfiguration, Query, Response,
+    SocketMode, StorePath, TranscriptRoot, TranscriptSource, TranscriptSources,
 };
 use signal::{ByteViewable, Restorable, Signal, Signalizable};
-use signal_aggregator::{LimitPolicy, Projection};
+use signal_aggregator::{
+    ByteLimit, LimitPolicy, MaximumBytes, MaximumSegments, Projection, SegmentLimit,
+};
 
 fn configuration() -> AggregatorConfiguration {
     AggregatorConfiguration {
-        ordinary_socket_path: String::from("/run/aggregator/ordinary.socket"),
-        ordinary_socket_mode: 0o660,
-        meta_socket_path: String::from("/run/aggregator/meta.socket"),
-        meta_socket_mode: 0o600,
-        store_path: String::from("/var/lib/aggregator"),
-        active_repositories: Vec::new(),
-        transcript_sources: vec![TranscriptSource::Claude(TranscriptRoot {
-            filesystem_path: String::from("/home/li/.claude/projects"),
-        })],
-        default_projection: Projection::MetadataOnly,
-        default_limit_policy: LimitPolicy {
-            maximum_segments: 64,
-            maximum_bytes: 65_536,
-        },
+        ordinary_socket_path: OrdinarySocketPath(FilesystemPath(
+            "/run/aggregator/ordinary.socket".to_string(),
+        )),
+        ordinary_socket_mode: OrdinarySocketMode(SocketMode(0o660)),
+        meta_socket_path: MetaSocketPath(FilesystemPath("/run/aggregator/meta.socket".to_string())),
+        meta_socket_mode: MetaSocketMode(SocketMode(0o600)),
+        store_path: StorePath(FilesystemPath("/var/lib/aggregator".to_string())),
+        active_repositories: ActiveRepositories(Vec::new()),
+        transcript_sources: TranscriptSources(vec![TranscriptSource::Claude(TranscriptRoot {
+            filesystem_path: FilesystemPath("/home/li/.claude/projects".to_string()),
+        })]),
+        default_projection: DefaultProjection(Projection::MetadataOnly),
+        default_limit_policy: DefaultLimitPolicy(LimitPolicy {
+            maximum_segments: MaximumSegments(SegmentLimit(64)),
+            maximum_bytes: MaximumBytes(ByteLimit(65_536)),
+        }),
         output_interface_configuration: OutputInterfaceConfiguration::default_policy(),
     }
 }
@@ -71,7 +77,7 @@ fn datom_round_trip_preserves_the_configuration() {
     let restored = pending
         .actualize(&mut Budget {
             remaining: 65536,
-            reader: ReaderBudget { remaining: 65536 },
+            reader: ReaderBudget::try_from(65536).expect("bounded reader budget"),
             depth: 0,
             maximum_depth: 256,
         })
