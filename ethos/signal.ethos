@@ -6,10 +6,10 @@ Signal
 [ Configure.ConfigurationChange
   ObserveConfiguration.ConfigurationObservationQuery
   ValidateConfiguration.ConfigurationCandidate ]
-[ ConfigurationConfigured.ConfigurationConfigured
-  ConfigurationObserved.ConfigurationObserved
-  ConfigurationValidated.ConfigurationValidated
-  ConfigurationRejected.ConfigurationRejected ]
+[ ConfigurationConfigured
+  ConfigurationObserved
+  ConfigurationValidated
+  ConfigurationRejected ]
 [ FilesystemPath.String
   RepositoryName.String
   ConfigurationObserver.String

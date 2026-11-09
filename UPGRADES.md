@@ -1,3 +1,14 @@
+# 0.9.1 — ethos-zero 22.0.0, bare redundant outputs
+
+Not breaking: the generated Rust and the public API are unchanged. The
+build-time ethos-zero is repinned from 5a5daca (19.2.0) to ccacc21 (22.0.0),
+and the redundant Signal outputs it refuses as `Payload` are written bare:
+`ConfigurationConfigured.ConfigurationConfigured` becomes
+`ConfigurationConfigured`, and its three siblings likewise, carrying the
+same types. The build-time ethos-zero brings datom-codec 5cd6219 (0.33.1)
+into the lock beside the selected eabead4 (0.33.0); the library's own graph
+is unchanged.
+
 # 0.9.0 — first protos 0.33 text-cohort adoption
 
 The authored Ethos and build script are unchanged. Generated aliases become
